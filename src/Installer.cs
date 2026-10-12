@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 [assembly: AssemblyTitle("Azeroth Survivors 한국어 패치")]
 [assembly: AssemblyDescription("게임 폴더에 넣고 실행하는 한국어 패치 설치기")]
-[assembly: AssemblyVersion("0.2.0.2")]
+[assembly: AssemblyVersion("0.2.0.3")]
 
 internal static class Installer
 {
@@ -19,7 +19,7 @@ internal static class Installer
     const string OverlayHash = "60268bcad6a3817a621a47e6f745e3a353fadf0ad85ec7f0a92b09dda1eb452f";
     const string AssetsHash = "49473c3cd0f47cd949e579240ea694c793aab813549920f1073ef73017364adf";
     const string Title = "아제로스 서바이버 한글 패치";
-    const string PatchVersion = "0.2.0.2";
+    const string PatchVersion = "0.2.0.3";
     // Add exact hashes of released Korean builds here when producing a new patch.
     static readonly string[] PreviousGameHashes = new string[0];
     static readonly string[] PreviousOverlayHashes = new string[0];
@@ -168,7 +168,7 @@ internal static class Installer
                     }
                     if (!restore) InstallLauncher(folder, backupDir);
                     else WriteState(backupDir, true);
-                    Tell(restore ? "원본 영문판으로 복원했습니다.\n세이브 데이터는 변경하지 않았습니다." : "한글 패치를 적용했습니다.\n자동 업데이트를 사용하려면 AzerothSurvivors_KoreanLauncher.exe로 실행하세요.\n원본은 한글패치_원본백업 폴더에 보관했습니다.\n세이브 데이터는 변경하지 않았습니다.", quiet);
+                    Tell(restore ? "영문판으로 복원했습니다." : "한글 패치 설치가 완료되었습니다.\nAzerothSurvivors_KoreanLauncher.exe로 실행하세요.", quiet);
                 }
                 finally
                 {
