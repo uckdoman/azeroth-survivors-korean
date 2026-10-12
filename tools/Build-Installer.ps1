@@ -22,7 +22,7 @@ try {
         [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($buildArchive, (Join-Path $buildInput $inputFile), $inputFile, [System.IO.Compression.CompressionLevel]::Optimal) | Out-Null
     }
 } finally { $buildArchive.Dispose() }
-& $buildCompiler /nologo /target:winexe /platform:anycpu /optimize+ /reference:System.Web.Extensions.dll /reference:System.Windows.Forms.dll /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll "/resource:$buildZip,patch.zip" "/resource:$buildLauncher,launcher.exe" "/out:$buildInstaller" (Join-Path $repoSource 'Installer.cs')
+& $buildCompiler /nologo /target:winexe /platform:anycpu /optimize+ /define:INSTALLER_BUILD /main:Installer /reference:System.Web.Extensions.dll /reference:System.Windows.Forms.dll /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll "/resource:$buildZip,patch.zip" "/resource:$buildLauncher,launcher.exe" "/resource:$(Join-Path $repoSource 'release-public-key.xml'),release-public-key.xml" "/out:$buildInstaller" (Join-Path $repoSource 'Installer.cs') (Join-Path $repoSource 'InstallerUpdate.cs') (Join-Path $repoSource 'Launcher.cs')
 if ($LASTEXITCODE -ne 0) { throw 'Installer compile failed.' }
 Remove-Item -LiteralPath $buildZip
 $buildSourceText = Get-Content -LiteralPath (Join-Path $repoSource 'Installer.cs') -Raw -Encoding UTF8

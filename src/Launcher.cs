@@ -11,7 +11,9 @@ using System.Threading;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
 
-[assembly: AssemblyVersion("0.71.0.1")]
+#if !INSTALLER_BUILD
+[assembly: AssemblyVersion("0.71.0.2")]
+#endif
 
 internal sealed class ReleaseInfo
 {
@@ -110,7 +112,7 @@ internal static class Launcher
                 using (FileStream hold = new FileStream(installer, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     if (HashStream(hold) != release.InstallerHash) throw new InvalidDataException("Installer changed");
-                    using (Process process = Process.Start(new ProcessStartInfo(installer, "/quiet") { WorkingDirectory = folder, UseShellExecute = false, CreateNoWindow = true }))
+                    using (Process process = Process.Start(new ProcessStartInfo(installer, "/quiet /skip-update") { WorkingDirectory = folder, UseShellExecute = false, CreateNoWindow = true }))
                     {
                         if (!process.WaitForExit(180000)) { Notice("업데이트가 아직 진행 중입니다. 완료 후 다시 실행해 주세요."); return 25; }
                         if (process.ExitCode != 0) throw new InvalidDataException("Installer failed");
@@ -218,7 +220,7 @@ internal static class Launcher
         }
     }
 
-    private static void DownloadInstaller(ReleaseInfo release, string destination)
+    internal static void DownloadInstaller(ReleaseInfo release, string destination)
     {
         string temporary = destination + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
@@ -298,7 +300,7 @@ internal static class Launcher
         }
     }
 
-    private static Version ReadInstalledVersion(string folder, out bool restored)
+    internal static Version ReadInstalledVersion(string folder, out bool restored)
     {
         restored = false;
         string path = Path.Combine(folder, "한글패치_원본백업", "installed.json");

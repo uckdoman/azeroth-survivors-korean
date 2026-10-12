@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 [assembly: AssemblyTitle("Azeroth Survivors 한국어 패치")]
 [assembly: AssemblyDescription("게임 폴더에 넣고 실행하는 한국어 패치 설치기")]
-[assembly: AssemblyVersion("0.71.0.1")]
+[assembly: AssemblyVersion("0.71.0.2")]
 
 internal static class Installer
 {
@@ -20,7 +20,7 @@ internal static class Installer
     const string AssetsHash = "49473c3cd0f47cd949e579240ea694c793aab813549920f1073ef73017364adf";
     const string Patch2Hash = "366edee41642a5dda22ed90cc252b543ee375755b7e8bee81e2a6cd59fd7b286";
     const string Title = "아제로스 서바이버 한글 패치";
-    const string PatchVersion = "0.71.0.1";
+    const string PatchVersion = "0.71.0.2";
     const string VersionMessage = "게임과 한글 패치가 최신 버전인지 확인해 주세요.";
     const string RetryMessage = "설치하지 못했습니다. 게임을 종료하고 다시 실행해 주세요.";
     // Add exact hashes of released Korean builds here when producing a new patch.
@@ -34,6 +34,7 @@ internal static class Installer
     {
         bool quiet = Array.IndexOf(args, "/quiet") >= 0;
         bool restore = Array.IndexOf(args, "/restore") >= 0;
+        bool skipUpdate = Array.IndexOf(args, "/skip-update") >= 0;
         try
         {
             string folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -45,6 +46,12 @@ internal static class Installer
             string backup = Path.Combine(sourceDir, "AzerothSurvivors.exe");
             if (!File.Exists(game) || !File.Exists(assets))
                 throw new UserError("설치기를 게임 폴더에 넣고 다시 실행해 주세요.");
+            // The update child needs the install lock; do not take it until handoff finishes.
+            if (!restore && !skipUpdate && InstallerUpdate.TryInstallLatest(folder, new Version(PatchVersion), quiet))
+            {
+                Tell(InstallMessage(false), quiet);
+                return 0;
+            }
             using (var installLock = new FileStream(Path.Combine(folder, ".azeroth-ko-install.lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 1, FileOptions.DeleteOnClose))
             {
                 CheckGameStopped();
@@ -61,6 +68,21 @@ internal static class Installer
                 string patch2 = Path.Combine(folder, "Data", "patch-2.MPQ");
                 if (!restore && (Hash(assets) != AssetsHash || !File.Exists(patch2) || Hash(patch2) != Patch2Hash))
                     throw new UserError(VersionMessage);
+                if (!restore)
+                {
+                    bool restoredState;
+                    Version installedVersion;
+                    try { installedVersion = Launcher.ReadInstalledVersion(folder, out restoredState); }
+                    catch { installedVersion = new Version(0, 0, 0, 0); restoredState = false; }
+                    if (!restoredState && installedVersion > new Version(PatchVersion))
+                    {
+                        if (current != PatchedHash || currentOverlayHash != OverlayHash ||
+                            !File.Exists(Path.Combine(folder, "AzerothSurvivors_KoreanLauncher.exe")))
+                            throw new UserError("최신 한글 패치로 다시 설치해 주세요.");
+                        Tell(InstallMessage(false), quiet);
+                        return 0;
+                    }
+                }
                 if (current == PatchedHash && currentOverlayHash == OverlayHash && !restore)
                 {
                     bool currentState = HasCurrentState(backupDir);
@@ -201,7 +223,7 @@ internal static class Installer
         catch (Exception error)
         {
             LogError(error);
-            string message = error is UserError ? error.Message : RetryMessage;
+            string message = error is UserError || error is InstallerUpdate.UpdateError ? error.Message : RetryMessage;
             if (quiet) Console.Error.WriteLine(message);
             else MessageBox.Show(message, Title, MessageBoxButtons.OK, MessageBoxIcon.Error);
             return 1;
