@@ -10,17 +10,17 @@ using System.Windows.Forms;
 
 [assembly: AssemblyTitle("Azeroth Survivors 한국어 패치")]
 [assembly: AssemblyDescription("게임 폴더에 넣고 실행하는 한국어 패치 설치기")]
-[assembly: AssemblyVersion("0.71.0.3")]
+[assembly: AssemblyVersion("0.71.4.1")]
 
 internal static class Installer
 {
-    const string OriginalHash = "180dd51036e9c0c6b60a27e39869e80b8397a6d2ea0a73fc8c57ee3dd7b7f22f";
-    const string PatchedHash = "6cc6aeb6c9b1f58f23997eb5b9f5c3f791c3ae310b359b0e9b67d8b05bd54d68";
+    const string OriginalHash = "f497c0589920e2fdd8c84d89b6602592bd7c609dccd55b39ea27578cc10f495a";
+    const string PatchedHash = "1de76826e449fa8c3a745f5c53b1af47bab8c29c66155c67cb27b5ff4d1bbc75";
     const string OverlayHash = "aba0e46a60c39064d477fe9df7ee8c5d84b06bbd8b648c126ae2dc2c362d788a";
     const string AssetsHash = "49473c3cd0f47cd949e579240ea694c793aab813549920f1073ef73017364adf";
     const string Patch2Hash = "366edee41642a5dda22ed90cc252b543ee375755b7e8bee81e2a6cd59fd7b286";
     const string Title = "아제로스 서바이버 한글 패치";
-    const string PatchVersion = "0.71.0.3";
+    const string PatchVersion = "0.71.4.1";
     const string VersionMessage = "게임과 한글 패치가 최신 버전인지 확인해 주세요.";
     const string RetryMessage = "설치하지 못했습니다. 게임을 종료하고 다시 실행해 주세요.";
     // Add exact hashes of released Korean builds here when producing a new patch.

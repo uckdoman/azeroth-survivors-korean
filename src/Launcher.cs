@@ -12,7 +12,7 @@ using System.Web.Script.Serialization;
 using System.Windows.Forms;
 
 #if !INSTALLER_BUILD
-[assembly: AssemblyVersion("0.71.0.3")]
+[assembly: AssemblyVersion("0.71.4.1")]
 #endif
 
 internal sealed class ReleaseInfo
@@ -295,7 +295,14 @@ internal static class Launcher
             string game = Path.Combine(folder, "AzerothSurvivors.exe");
             if (IsGameRunning(game)) { Notice("게임이 이미 실행 중입니다."); return 23; }
             if (!GameValidAny(folder, trusted)) { Notice("한글 패치를 다시 설치해 주세요."); return 22; }
-            try { Process.Start(new ProcessStartInfo(game) { WorkingDirectory = folder, UseShellExecute = false }); return result; }
+            try
+            {
+                ProcessStartInfo start = new ProcessStartInfo(game) { WorkingDirectory = folder, UseShellExecute = false };
+                start.EnvironmentVariables["WOW_ROGUE_UPDATE_URL"] = "https://patch.invalid/exe/latest.json";
+                start.EnvironmentVariables["WOW_ROGUE_DATA_URL"] = "https://patch.invalid/exe/data/patches.json";
+                Process.Start(start);
+                return result;
+            }
             catch { Notice("게임을 시작하지 못했습니다. 게임 폴더를 확인해 주세요."); return 22; }
         }
     }
