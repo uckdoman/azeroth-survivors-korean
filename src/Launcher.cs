@@ -14,7 +14,7 @@ using System.Windows.Forms;
 internal sealed class ReleaseInfo
 {
     internal Version Version;
-    internal string InstallerUrl, InstallerHash, SourceHash, PatchedHash, AssetsHash, OverlayHash;
+    internal string InstallerUrl, InstallerHash, SourceHash, PatchedHash, AssetsHash, OverlayHash, Patch2Hash;
     internal long InstallerSize;
 }
 
@@ -163,6 +163,7 @@ internal static class Launcher
         release.PatchedHash = Digest(data, "patched_exe_sha256");
         release.AssetsHash = Digest(data, "assets_sha256");
         release.OverlayHash = Digest(data, "overlay_sha256");
+        release.Patch2Hash = data.ContainsKey("patch2_sha256") ? Digest(data, "patch2_sha256") : null;
         return release;
     }
 
@@ -266,6 +267,7 @@ internal static class Launcher
         {
             string game = HashFile(Path.Combine(folder, "AzerothSurvivors.exe"));
             if (HashFile(Path.Combine(folder, "Data", "patch.MPQ")) != release.AssetsHash) return false;
+            if (!String.IsNullOrEmpty(release.Patch2Hash) && HashFile(Path.Combine(folder, "Data", "patch-2.MPQ")) != release.Patch2Hash) return false;
             string overlay = Path.Combine(folder, "Data", "patch-Z.MPQ");
             if (game == release.PatchedHash) return File.Exists(overlay) && HashFile(overlay) == release.OverlayHash;
             return game == release.SourceHash && !File.Exists(overlay);
@@ -315,7 +317,7 @@ internal static class Launcher
     {
         Dictionary<string, object> data = Json.Deserialize<Dictionary<string, object>>(value);
         if (Number(data, "schema") != 1) throw new InvalidDataException("Baseline schema");
-        return new ReleaseInfo { Version = ParseVersion(Text(data, "version")), SourceHash = Digest(data, "source_exe_sha256"), PatchedHash = Digest(data, "patched_exe_sha256"), AssetsHash = Digest(data, "assets_sha256"), OverlayHash = Digest(data, "overlay_sha256") };
+        return new ReleaseInfo { Version = ParseVersion(Text(data, "version")), SourceHash = Digest(data, "source_exe_sha256"), PatchedHash = Digest(data, "patched_exe_sha256"), AssetsHash = Digest(data, "assets_sha256"), OverlayHash = Digest(data, "overlay_sha256"), Patch2Hash = data.ContainsKey("patch2_sha256") ? Digest(data, "patch2_sha256") : null };
     }
 
     private static bool IsGameRunning(string game)

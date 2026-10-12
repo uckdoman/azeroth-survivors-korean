@@ -42,6 +42,7 @@ $buildMetadata = [ordered]@{
     supported_assets_sha256 = Read-BuildConstant 'AssetsHash'
     patched_exe_sha256 = Read-BuildConstant 'PatchedHash'
     patch_mpq_sha256 = $actualOverlayHash
+    supported_patch2_sha256 = Read-BuildConstant 'Patch2Hash'
 }
 $buildUtf8 = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText((Join-Path $buildOutput 'release-metadata.json'), ($buildMetadata | ConvertTo-Json), $buildUtf8)

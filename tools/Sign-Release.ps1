@@ -25,6 +25,10 @@ $updatePayload = [ordered]@{
     assets_sha256 = $patchMetadata.supported_assets_sha256
     overlay_sha256 = $patchMetadata.patch_mpq_sha256
 }
+if ($patchMetadata.PSObject.Properties.Name -contains 'supported_patch2_sha256') {
+    if ($patchMetadata.supported_patch2_sha256 -cnotmatch '^[a-f0-9]{64}$') { throw 'Invalid patch-2 digest.' }
+    $updatePayload['patch2_sha256'] = $patchMetadata.supported_patch2_sha256
+}
 foreach ($digestName in 'installer_sha256','source_exe_sha256','patched_exe_sha256','assets_sha256','overlay_sha256') {
     if ($updatePayload[$digestName] -cnotmatch '^[a-f0-9]{64}$') { throw "Invalid digest: $digestName" }
 }
