@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -10,19 +10,24 @@ using System.Windows.Forms;
 
 [assembly: AssemblyTitle("Azeroth Survivors 한국어 패치")]
 [assembly: AssemblyDescription("게임 폴더에 넣고 실행하는 한국어 패치 설치기")]
-[assembly: AssemblyVersion("0.2.0.3")]
+[assembly: AssemblyVersion("0.69.1.1")]
 
 internal static class Installer
 {
-    const string OriginalHash = "64fa48a5cdc3afc1621a1d7ac7426f287e2b99021a8a2b50aacc360606bb903a";
-    const string PatchedHash = "ac7dcf2ab4d9227754588b22c52b4cb4772f29fb58f5c948867823e6010970b0";
-    const string OverlayHash = "60268bcad6a3817a621a47e6f745e3a353fadf0ad85ec7f0a92b09dda1eb452f";
+    const string OriginalHash = "41161a556ed31e6c4fef3d1621d308c625daa6a8d55e8f2f8464db494fbc9e21";
+    const string PatchedHash = "c902b1aa057f89bd4ef238cfb73adec8d345acf4780940cb96f78bdb29eb15a8";
+    const string OverlayHash = "831eb84a21736635210f2016ec0329e263c9dab781e92bd467896072c5c87260";
     const string AssetsHash = "49473c3cd0f47cd949e579240ea694c793aab813549920f1073ef73017364adf";
+    const string Patch2Hash = "366edee41642a5dda22ed90cc252b543ee375755b7e8bee81e2a6cd59fd7b286";
     const string Title = "아제로스 서바이버 한글 패치";
-    const string PatchVersion = "0.2.0.3";
+    const string PatchVersion = "0.69.1.1";
+    const string VersionMessage = "게임과 한글 패치가 최신 버전인지 확인해 주세요.";
+    const string RetryMessage = "설치하지 못했습니다. 게임을 종료하고 다시 실행해 주세요.";
     // Add exact hashes of released Korean builds here when producing a new patch.
     static readonly string[] PreviousGameHashes = new string[0];
-    static readonly string[] PreviousOverlayHashes = new string[0];
+    static readonly string[] PreviousOverlayHashes = { "60268bcad6a3817a621a47e6f745e3a353fadf0ad85ec7f0a92b09dda1eb452f" };
+
+    sealed class UserError : Exception { public UserError(string message) : base(message) { } }
 
     [STAThread]
     static int Main(string[] args)
@@ -36,28 +41,35 @@ internal static class Installer
             string assets = Path.Combine(folder, "Data", "patch.MPQ");
             string overlay = Path.Combine(folder, "Data", "patch-Z.MPQ");
             string backupDir = Path.Combine(folder, "한글패치_원본백업");
-            string backup = Path.Combine(backupDir, "AzerothSurvivors.exe");
+            string sourceDir = Path.Combine(backupDir, "source-" + OriginalHash.Substring(0, 16));
+            string backup = Path.Combine(sourceDir, "AzerothSurvivors.exe");
             if (!File.Exists(game) || !File.Exists(assets))
-                throw new InvalidOperationException("이 파일을 AzerothSurvivors.exe와 Data 폴더가 있는 게임 폴더에 넣고 다시 실행해 주세요.");
+                throw new UserError("설치기를 게임 폴더에 넣고 다시 실행해 주세요.");
             using (var installLock = new FileStream(Path.Combine(folder, ".azeroth-ko-install.lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 1, FileOptions.DeleteOnClose))
             {
                 CheckGameStopped();
                 string current = Hash(game);
                 bool knownPatched = current == PatchedHash || Array.IndexOf(PreviousGameHashes, current) >= 0;
                 if (current != OriginalHash && !knownPatched)
-                    throw new InvalidOperationException("지원하지 않는 게임 버전입니다.\n현재 패치는 제작 시 확인한 Windows 0.2.0 실행 파일에만 적용됩니다. 게임 파일은 변경하지 않았습니다.");
+                    throw new UserError(VersionMessage);
                 bool hasOverlay = File.Exists(overlay);
                 string currentOverlayHash = hasOverlay ? Hash(overlay) : null;
                 if (hasOverlay && currentOverlayHash != OverlayHash && Array.IndexOf(PreviousOverlayHashes, currentOverlayHash) < 0)
-                    throw new InvalidOperationException("Data\\patch-Z.MPQ에 다른 패치 파일이 있습니다. 기존 파일을 덮어쓰지 않았습니다.");
+                    throw new UserError("다른 한글 패치가 적용되어 있습니다. 원본 게임에 다시 설치해 주세요.");
                 if (knownPatched && (!File.Exists(backup) || Hash(backup) != OriginalHash))
-                    throw new InvalidOperationException("설치기로 보관한 원본 백업이 없거나 손상되었습니다. 원본 게임 파일에서 다시 적용해 주세요.");
-                if (!restore && Hash(assets) != AssetsHash)
-                    throw new InvalidOperationException("Data\\patch.MPQ가 제작 시 확인한 파일과 다릅니다. 다른 버전이나 자산 패치에는 적용하지 않았습니다.");
+                    throw new UserError("원본 게임에 한글 패치를 다시 설치해 주세요.");
+                string patch2 = Path.Combine(folder, "Data", "patch-2.MPQ");
+                if (!restore && (Hash(assets) != AssetsHash || !File.Exists(patch2) || Hash(patch2) != Patch2Hash))
+                    throw new UserError(VersionMessage);
                 if (current == PatchedHash && currentOverlayHash == OverlayHash && !restore)
                 {
-                    InstallLauncher(folder, backupDir);
-                    if (quiet) return 0;
+                    bool currentState = HasCurrentState(backupDir);
+                    bool pendingLauncher = InstallLauncher(folder, backupDir);
+                    if (quiet || !currentState || pendingLauncher)
+                    {
+                        Tell(InstallMessage(pendingLauncher), quiet);
+                        return 0;
+                    }
                     restore = MessageBox.Show("이미 한글 패치가 적용되어 있습니다.\n원본 영문판으로 복원하시겠습니까?", Title, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes;
                     if (!restore) return 0;
                 }
@@ -66,18 +78,18 @@ internal static class Installer
                     if (current == OriginalHash && !hasOverlay)
                     {
                         WriteState(backupDir, true);
-                        Tell("이미 원본 상태입니다.", quiet);
+                        Tell("영문판으로 복원했습니다.", quiet);
                         return 0;
                     }
                     if (!File.Exists(backup) || Hash(backup) != OriginalHash)
-                        throw new InvalidOperationException("복원에 필요한 원본 백업을 찾을 수 없거나 백업이 손상되었습니다. 게임 파일은 변경하지 않았습니다.");
+                        throw new UserError("원본 게임에 한글 패치를 다시 설치해 주세요.");
                 }
                 else
                 {
                     if (File.Exists(backup) && Hash(backup) != OriginalHash)
-                        throw new InvalidOperationException("한글패치_원본백업의 실행 파일이 예상 원본과 다릅니다. 기존 백업을 덮어쓰지 않았습니다.");
+                        throw new UserError("원본 게임에 한글 패치를 다시 설치해 주세요.");
                     if (knownPatched && !File.Exists(backup))
-                        throw new InvalidOperationException("한글판 실행 파일은 있지만 원본 백업이 없습니다. 원본 게임 파일에서 다시 적용해 주세요.");
+                        throw new UserError("원본 게임에 한글 패치를 다시 설치해 주세요.");
                 }
                 string stage = Path.Combine(folder, ".azeroth-ko-stage-" + Guid.NewGuid().ToString("N"));
                 Directory.CreateDirectory(stage);
@@ -102,15 +114,15 @@ internal static class Installer
                         }
                         if (Hash(next) != PatchedHash || Hash(nextOverlay) != OverlayHash)
                             throw new InvalidOperationException("패치 데이터 검증에 실패했습니다. 게임 파일은 변경하지 않았습니다.");
-                        Directory.CreateDirectory(backupDir);
+                        Directory.CreateDirectory(sourceDir);
                         if (!File.Exists(backup)) File.Copy(game, backup);
                         if (Hash(backup) != OriginalHash)
                             throw new InvalidOperationException("원본 백업 검증에 실패했습니다. 게임 파일은 변경하지 않았습니다.");
                         using (Stream payload = Assembly.GetExecutingAssembly().GetManifestResourceStream("patch.zip"))
                         using (var zip = new ZipArchive(payload, ZipArchiveMode.Read))
                         {
-                            Extract(zip.GetEntry("FONT-LICENSE.txt"), Path.Combine(backupDir, "FONT-LICENSE.txt"));
-                            Extract(zip.GetEntry("README.txt"), Path.Combine(backupDir, "README.txt"));
+                            Extract(zip.GetEntry("FONT-LICENSE.txt"), Path.Combine(sourceDir, "FONT-LICENSE.txt"));
+                            Extract(zip.GetEntry("README.txt"), Path.Combine(sourceDir, "README.txt"));
                         }
                     }
                     CheckGameStopped();
@@ -118,6 +130,7 @@ internal static class Installer
                         throw new InvalidOperationException("설치 도중 게임 파일이 변경되었습니다. 다시 실행해 주세요.");
                     bool gameChanged = false;
                     bool overlayMoved = false;
+                    bool pendingLauncher = false;
                     string oldOverlay = Path.Combine(stage, "previous.MPQ");
                     try
                     {
@@ -140,6 +153,8 @@ internal static class Installer
                         }
                         if (Hash(game) != (restore ? OriginalHash : PatchedHash) || (!restore && Hash(overlay) != OverlayHash))
                             throw new IOException("적용 후 파일 검증에 실패했습니다.");
+                        if (!restore) pendingLauncher = InstallLauncher(folder, backupDir);
+                        else WriteState(backupDir, true);
                     }
                     catch
                     {
@@ -162,13 +177,11 @@ internal static class Installer
                         if (recoveryError != null)
                         {
                             preserveStage = true;
-                            throw new IOException("설치 실패 후 자동 복원에도 실패했습니다.\n원본 백업: " + backup + "\n작업 폴더: " + stage + "\n" + recoveryError.Message);
+                            throw new IOException("Automatic rollback failed; backup=" + backup + "; stage=" + stage, recoveryError);
                         }
                         throw;
                     }
-                    if (!restore) InstallLauncher(folder, backupDir);
-                    else WriteState(backupDir, true);
-                    Tell(restore ? "영문판으로 복원했습니다." : "한글 패치 설치가 완료되었습니다.\nAzerothSurvivors_KoreanLauncher.exe로 실행하세요.", quiet);
+                    Tell(restore ? "영문판으로 복원했습니다." : InstallMessage(pendingLauncher), quiet);
                 }
                 finally
                 {
@@ -187,43 +200,153 @@ internal static class Installer
         }
         catch (Exception error)
         {
-            if (quiet) Console.Error.WriteLine(error.Message);
-            else MessageBox.Show(error.Message, Title, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            LogError(error);
+            string message = error is UserError ? error.Message : RetryMessage;
+            if (quiet) Console.Error.WriteLine(message);
+            else MessageBox.Show(message, Title, MessageBoxButtons.OK, MessageBoxIcon.Error);
             return 1;
         }
     }
 
-    static void InstallLauncher(string folder, string backupDir)
+    static bool InstallLauncher(string folder, string backupDir)
     {
         Directory.CreateDirectory(backupDir);
         string launcher = Path.Combine(folder, "AzerothSurvivors_KoreanLauncher.exe");
-        // The stable launcher stays in place while it is running an update installer.
-        if (!File.Exists(launcher))
+        string next = Path.Combine(folder, ".launcher-next-" + Guid.NewGuid().ToString("N") + ".exe");
+        string previous = Path.Combine(folder, ".launcher-old-" + Guid.NewGuid().ToString("N") + ".exe");
+        string pending = Path.Combine(backupDir, "launcher.pending.exe");
+        string pendingBefore = Path.Combine(backupDir, ".launcher-before-" + Guid.NewGuid().ToString("N") + ".exe");
+        bool hadPending = File.Exists(pending);
+        bool movedOld = false, installed = false, pendingChanged = false, committed = false, preserveRecovery = false;
+        try
         {
-            string pendingLauncher = Path.Combine(folder, ".launcher-" + Guid.NewGuid().ToString("N") + ".exe");
+            using (Stream input = Assembly.GetExecutingAssembly().GetManifestResourceStream("launcher.exe"))
+            using (var output = new FileStream(next, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
+                if (input == null) throw new InvalidDataException("Missing launcher resource.");
+                input.CopyTo(output);
+            }
+            if (hadPending) File.Copy(pending, pendingBefore);
+            bool needsReplacement = !File.Exists(launcher) || Hash(launcher) != Hash(next);
+            bool defer = false;
+            if (needsReplacement && File.Exists(launcher))
+            {
+                // A running launcher can often be renamed even when replacing it is blocked.
+                try { File.Move(launcher, previous); movedOld = true; }
+                catch (IOException) { defer = true; }
+                catch (UnauthorizedAccessException) { defer = true; }
+            }
+            if (defer)
+            {
+                if (hadPending) File.Replace(next, pending, null);
+                else File.Move(next, pending);
+                pendingChanged = true;
+            }
+            else
+            {
+                if (needsReplacement) { File.Move(next, launcher); installed = true; }
+                if (hadPending) { File.Delete(pending); pendingChanged = true; }
+            }
+            WriteState(backupDir, false, defer);
+            committed = true;
+            return defer;
+        }
+        catch (Exception failure)
+        {
+            Exception recoveryError = null;
             try
             {
-                using (Stream input = Assembly.GetExecutingAssembly().GetManifestResourceStream("launcher.exe"))
-                using (var output = new FileStream(pendingLauncher, FileMode.CreateNew, FileAccess.Write, FileShare.None))
-                {
-                    if (input == null) throw new InvalidDataException("업데이트 실행기 데이터가 없습니다.");
-                    input.CopyTo(output);
-                }
-                File.Move(pendingLauncher, launcher);
+                if (installed && File.Exists(launcher)) File.Delete(launcher);
+                if (movedOld) File.Move(previous, launcher);
             }
-            finally { if (File.Exists(pendingLauncher)) File.Delete(pendingLauncher); }
+            catch (Exception recovery) { recoveryError = recovery; }
+            try
+            {
+                if (pendingChanged)
+                {
+                    if (hadPending)
+                    {
+                        if (File.Exists(pending)) File.Replace(pendingBefore, pending, null);
+                        else File.Move(pendingBefore, pending);
+                    }
+                    else if (File.Exists(pending)) File.Delete(pending);
+                }
+            }
+            catch (Exception recovery) { recoveryError = recovery; }
+            if (recoveryError != null)
+            {
+                preserveRecovery = true;
+                throw new IOException("Launcher rollback failed; previous=" + previous + "; pendingBefore=" + pendingBefore,
+                    new AggregateException(failure, recoveryError));
+            }
+            throw;
         }
-        WriteState(backupDir, false);
+        finally
+        {
+            if (!preserveRecovery)
+            {
+                DeleteTemporary(next);
+                DeleteTemporary(pendingBefore);
+                if (committed) DeleteTemporary(previous);
+            }
+        }
     }
 
-    static void WriteState(string backupDir, bool restored)
+    static bool HasCurrentState(string backupDir)
+    {
+        try
+        {
+            string path = Path.Combine(backupDir, "installed.json");
+            if (!File.Exists(path)) return false;
+            var state = new JavaScriptSerializer().DeserializeObject(File.ReadAllText(path)) as System.Collections.Generic.Dictionary<string, object>;
+            object version, source, pending, restored;
+            return state != null && state.TryGetValue("version", out version) && Convert.ToString(version) == PatchVersion
+                && state.TryGetValue("source_sha256", out source) && Convert.ToString(source) == OriginalHash
+                && (!state.TryGetValue("launcher_pending", out pending) || !Convert.ToBoolean(pending))
+                && (!state.TryGetValue("restored", out restored) || !Convert.ToBoolean(restored));
+        }
+        catch { return false; }
+    }
+
+    static void WriteState(string backupDir, bool restored, bool launcherPending = false)
     {
         Directory.CreateDirectory(backupDir);
         string state = Path.Combine(backupDir, "installed.json");
-        string pending = Path.Combine(backupDir, "installed.pending.json");
-        File.WriteAllText(pending, new JavaScriptSerializer().Serialize(new { schema = 1, version = PatchVersion, restored = restored }), new UTF8Encoding(false));
-        if (File.Exists(state)) File.Replace(pending, state, null);
-        else File.Move(pending, state);
+        string pending = Path.Combine(backupDir, ".installed-" + Guid.NewGuid().ToString("N") + ".json");
+        try
+        {
+            File.WriteAllText(pending, new JavaScriptSerializer().Serialize(new {
+                schema = 1, version = PatchVersion, restored = restored,
+                source_sha256 = OriginalHash, source_backup = "source-" + OriginalHash.Substring(0, 16) + "/AzerothSurvivors.exe",
+                launcher_pending = launcherPending
+            }), new UTF8Encoding(false));
+            if (File.Exists(state)) File.Replace(pending, state, null);
+            else File.Move(pending, state);
+        }
+        finally { DeleteTemporary(pending); }
+    }
+
+    static string InstallMessage(bool pending)
+    {
+        return pending ? "설치가 완료되었습니다.\n실행기를 종료하고 설치기를 한 번 더 실행해 주세요."
+            : "설치가 완료되었습니다.\nAzerothSurvivors_KoreanLauncher.exe로 실행해 주세요.";
+    }
+
+    static void DeleteTemporary(string path)
+    {
+        try { if (File.Exists(path)) File.Delete(path); } catch { }
+    }
+
+    static void LogError(Exception error)
+    {
+        try
+        {
+            string folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string path = Path.Combine(folder, ".azeroth-ko-installer.log");
+            File.AppendAllText(path, DateTime.UtcNow.ToString("o") + " " + error.ToString() + Environment.NewLine, new UTF8Encoding(false));
+            File.SetAttributes(path, File.GetAttributes(path) | FileAttributes.Hidden);
+        }
+        catch { }
     }
 
     static void CheckGameStopped()
@@ -232,7 +355,7 @@ internal static class Installer
         {
             using (process)
                 if (!process.HasExited)
-                    throw new InvalidOperationException("실행 중인 Azeroth Survivors를 종료한 뒤 패치를 다시 실행해 주세요.");
+                    throw new UserError("게임을 종료하고 다시 실행해 주세요.");
         }
     }
 

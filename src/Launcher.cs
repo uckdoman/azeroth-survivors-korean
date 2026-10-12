@@ -47,7 +47,7 @@ internal static class Launcher
             try { owned = gate.WaitOne(0); } catch (AbandonedMutexException) { owned = true; }
             if (!owned) { Notice("한글패치 실행기가 이미 실행 중입니다."); return 23; }
             try { return Run(folder, checkOnly); }
-            catch (Exception) { Notice("한글패치 실행기에 문제가 발생했습니다. 게임 폴더를 확인해 주세요."); return 22; }
+            catch (Exception) { Notice("게임을 실행하지 못했습니다. 한글 패치를 다시 설치해 주세요."); return 22; }
             finally { gate.ReleaseMutex(); }
         }
     }
@@ -69,7 +69,7 @@ internal static class Launcher
         Version installed;
         bool restored;
         try { installed = ReadInstalledVersion(folder, out restored); }
-        catch { if (checkOnly) return 21; Notice("설치 정보를 확인하지 못했습니다. 설치된 게임을 확인합니다."); return StartExisting(folder, trusted, 21); }
+        catch { if (checkOnly) return 21; return StartExisting(folder, trusted, 21); }
         if (restored)
         {
             List<ReleaseInfo> originals = trusted.FindAll(delegate(ReleaseInfo item) { return HashFileSafe(Path.Combine(folder, "AzerothSurvivors.exe")) == item.SourceHash; });
@@ -129,7 +129,7 @@ internal static class Launcher
         catch (Exception)
         {
             if (checkOnly) return 21;
-            Notice("업데이트를 적용하지 못했습니다. 설치된 게임을 확인합니다.");
+            Notice("업데이트하지 못했습니다. 현재 버전으로 실행합니다.");
             return StartExisting(folder, trusted, 21);
         }
         return StartExisting(folder, trusted, result);
@@ -283,12 +283,12 @@ internal static class Launcher
     {
         FileStream installLock;
         try { installLock = new FileStream(Path.Combine(folder, ".azeroth-ko-install.lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 1, FileOptions.DeleteOnClose); }
-        catch { Notice("다른 한글패치 작업이 진행 중입니다. 완료 후 다시 실행해 주세요."); return 25; }
+        catch { Notice("설치가 진행 중입니다. 잠시 후 다시 실행해 주세요."); return 25; }
         using (installLock)
         {
             string game = Path.Combine(folder, "AzerothSurvivors.exe");
             if (IsGameRunning(game)) { Notice("게임이 이미 실행 중입니다."); return 23; }
-            if (!GameValidAny(folder, trusted)) { Notice("게임 파일을 확인하지 못했습니다. 한글패치 설치기를 다시 적용해 주세요."); return 22; }
+            if (!GameValidAny(folder, trusted)) { Notice("한글 패치를 다시 설치해 주세요."); return 22; }
             try { Process.Start(new ProcessStartInfo(game) { WorkingDirectory = folder, UseShellExecute = false }); return result; }
             catch { Notice("게임을 시작하지 못했습니다. 게임 폴더를 확인해 주세요."); return 22; }
         }
