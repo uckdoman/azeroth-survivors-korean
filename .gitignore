@@ -1,0 +1,8 @@
+/dist/
+/inputs/
+*.exe
+*.MPQ
+*.mpq
+*.pfx
+*.pem
+*private-key*
