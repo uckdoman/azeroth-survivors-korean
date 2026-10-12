@@ -18,6 +18,10 @@ $releasePublicKey = Join-Path $PSScriptRoot '..\src\release-public-key.xml'
 & gh release create $releaseTag $InstallerPath $releaseFeed --repo $releaseRepo --draft --title ('한국어 패치 ' + $releaseVersion.ToString()) --notes-file $ReleaseNotesPath
 if ($LASTEXITCODE -ne 0) { throw 'Draft release creation failed. No existing release was overwritten.' }
 if (-not $DraftOnly) {
-    & gh release edit $releaseTag --repo $releaseRepo --draft=false --latest
+    $draftReleases = & gh api "repos/$releaseRepo/releases?per_page=100" | ConvertFrom-Json
+    if ($LASTEXITCODE -ne 0) { throw 'Could not find the uploaded draft.' }
+    $matchingDraft = @($draftReleases | Where-Object { $_.tag_name -eq $releaseTag -and $_.draft })
+    if ($matchingDraft.Count -ne 1) { throw 'Expected exactly one matching draft release.' }
+    & gh api --method PATCH "repos/$releaseRepo/releases/$($matchingDraft[0].id)" -F draft=false -f make_latest=true --jq .html_url
     if ($LASTEXITCODE -ne 0) { throw 'Publishing failed; the draft assets are preserved.' }
 }
