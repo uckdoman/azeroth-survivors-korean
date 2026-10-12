@@ -43,7 +43,7 @@ internal static class LauncherTests
             }
             payload = Payload();
             payload["installer_size"] = Launcher.InstallerLimit + 1;
-            Reject(delegate { Launcher.VerifyManifest(Signed(payload), PublicKey); }, "installer exceeds 64MB");
+            Reject(delegate { Launcher.VerifyManifest(Signed(payload), PublicKey); }, "installer exceeds updater size limit");
             payload["installer_size"] = 0;
             Reject(delegate { Launcher.VerifyManifest(Signed(payload), PublicKey); }, "zero installer size");
             payload = Payload(); payload["installer_sha256"] = "";

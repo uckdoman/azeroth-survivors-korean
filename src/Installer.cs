@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 [assembly: AssemblyTitle("Azeroth Survivors 한국어 패치")]
 [assembly: AssemblyDescription("게임 폴더에 넣고 실행하는 한국어 패치 설치기")]
-[assembly: AssemblyVersion("0.71.0.2")]
+[assembly: AssemblyVersion("0.71.0.3")]
 
 internal static class Installer
 {
@@ -20,7 +20,7 @@ internal static class Installer
     const string AssetsHash = "49473c3cd0f47cd949e579240ea694c793aab813549920f1073ef73017364adf";
     const string Patch2Hash = "366edee41642a5dda22ed90cc252b543ee375755b7e8bee81e2a6cd59fd7b286";
     const string Title = "아제로스 서바이버 한글 패치";
-    const string PatchVersion = "0.71.0.2";
+    const string PatchVersion = "0.71.0.3";
     const string VersionMessage = "게임과 한글 패치가 최신 버전인지 확인해 주세요.";
     const string RetryMessage = "설치하지 못했습니다. 게임을 종료하고 다시 실행해 주세요.";
     // Add exact hashes of released Korean builds here when producing a new patch.
@@ -57,7 +57,8 @@ internal static class Installer
                 CheckGameStopped();
                 string current = Hash(game);
                 bool knownPatched = current == PatchedHash || Array.IndexOf(PreviousGameHashes, current) >= 0;
-                if (current != OriginalHash && !knownPatched)
+                bool needsSupportedSource = current != OriginalHash && !knownPatched;
+                if (restore && needsSupportedSource)
                     throw new UserError(VersionMessage);
                 bool hasOverlay = File.Exists(overlay);
                 string currentOverlayHash = hasOverlay ? Hash(overlay) : null;
@@ -127,17 +128,23 @@ internal static class Installer
                     if (restore) File.Copy(backup, next);
                     else
                     {
+                        string patchSource = current == OriginalHash ? game : backup;
+                        if (needsSupportedSource && !File.Exists(backup))
+                        {
+                            patchSource = Path.Combine(stage, "source.exe");
+                            SupportedGame.PrepareSource(patchSource, OriginalHash);
+                        }
                         using (Stream payload = Assembly.GetExecutingAssembly().GetManifestResourceStream("patch.zip"))
                         using (var zip = new ZipArchive(payload, ZipArchiveMode.Read))
                         {
-                            File.Copy(current == OriginalHash ? game : backup, next);
+                            File.Copy(patchSource, next);
                             ApplyDelta(zip.GetEntry("game.delta"), next);
                             Extract(zip.GetEntry("patch-Z.MPQ"), nextOverlay);
                         }
                         if (Hash(next) != PatchedHash || Hash(nextOverlay) != OverlayHash)
                             throw new InvalidOperationException("패치 데이터 검증에 실패했습니다. 게임 파일은 변경하지 않았습니다.");
                         Directory.CreateDirectory(sourceDir);
-                        if (!File.Exists(backup)) File.Copy(game, backup);
+                        if (!File.Exists(backup)) File.Copy(patchSource, backup);
                         if (Hash(backup) != OriginalHash)
                             throw new InvalidOperationException("원본 백업 검증에 실패했습니다. 게임 파일은 변경하지 않았습니다.");
                         using (Stream payload = Assembly.GetExecutingAssembly().GetManifestResourceStream("patch.zip"))
@@ -150,6 +157,15 @@ internal static class Installer
                     CheckGameStopped();
                     if (Hash(game) != current || File.Exists(overlay) != hasOverlay || (hasOverlay && Hash(overlay) != currentOverlayHash))
                         throw new InvalidOperationException("설치 도중 게임 파일이 변경되었습니다. 다시 실행해 주세요.");
+                    if (needsSupportedSource)
+                    {
+                        string previousSourceDir = Path.Combine(backupDir, "source-" + current.Substring(0, 16));
+                        Directory.CreateDirectory(previousSourceDir);
+                        string previousSource = Path.Combine(previousSourceDir, "AzerothSurvivors.exe");
+                        if (!File.Exists(previousSource)) File.Copy(before, previousSource);
+                        if (Hash(previousSource) != current)
+                            throw new IOException("기존 게임 파일을 보존하지 못했습니다.");
+                    }
                     bool gameChanged = false;
                     bool overlayMoved = false;
                     bool pendingLauncher = false;
@@ -209,7 +225,7 @@ internal static class Installer
                 {
                     if (!preserveStage)
                     {
-                        foreach (string name in new[] { "before.exe", "next.exe", "patch-Z.MPQ", "previous.MPQ", "overlay-before.MPQ" })
+                        foreach (string name in new[] { "before.exe", "next.exe", "patch-Z.MPQ", "previous.MPQ", "overlay-before.MPQ", "source.exe", "source.exe.gz" })
                         {
                             string path = Path.Combine(stage, name);
                             try { if (File.Exists(path)) File.Delete(path); } catch { }

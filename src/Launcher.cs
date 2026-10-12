@@ -12,7 +12,7 @@ using System.Web.Script.Serialization;
 using System.Windows.Forms;
 
 #if !INSTALLER_BUILD
-[assembly: AssemblyVersion("0.71.0.2")]
+[assembly: AssemblyVersion("0.71.0.3")]
 #endif
 
 internal sealed class ReleaseInfo
@@ -26,7 +26,7 @@ internal static class Launcher
 {
     internal const string FeedUrl = "https://github.com/uckdoman/azeroth-survivors-korean/releases/latest/download/update.json";
     internal const int ManifestLimit = 65536;
-    internal const long InstallerLimit = 64L * 1024 * 1024;
+    internal const long InstallerLimit = 128L * 1024 * 1024;
     private static readonly JavaScriptSerializer Json = new JavaScriptSerializer { MaxJsonLength = ManifestLimit, RecursionLimit = 8 };
     private static bool Quiet;
 

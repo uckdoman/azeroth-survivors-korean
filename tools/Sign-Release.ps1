@@ -13,7 +13,7 @@ $releaseTag = 'v{0}.{1}.{2}-ko.{3}' -f $releaseVersion.Major,$releaseVersion.Min
 $installerHash = (Get-FileHash -LiteralPath $InstallerPath -Algorithm SHA256).Hash.ToLowerInvariant()
 if ($installerHash -ne $patchMetadata.installer_sha256) { throw 'Installer hash does not match metadata.' }
 $installerBytes = (Get-Item -LiteralPath $InstallerPath).Length
-if ($installerBytes -le 0 -or $installerBytes -gt 64MB) { throw 'Installer exceeds updater size limit.' }
+if ($installerBytes -le 0 -or $installerBytes -gt 128MB) { throw 'Installer exceeds updater size limit.' }
 $updatePayload = [ordered]@{
     schema = 1
     version = $releaseVersion.ToString()
