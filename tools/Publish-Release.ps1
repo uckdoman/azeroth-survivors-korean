@@ -1,4 +1,4 @@
-param(
+﻿param(
     [Parameter(Mandatory=$true)][string]$InstallerPath,
     [Parameter(Mandatory=$true)][string]$MetadataPath,
     [Parameter(Mandatory=$true)][string]$PrivateKeyPath,

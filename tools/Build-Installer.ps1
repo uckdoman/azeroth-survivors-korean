@@ -1,4 +1,4 @@
-param([string]$InputDirectory = (Join-Path $PSScriptRoot '..\inputs'), [string]$OutputDirectory = (Join-Path $PSScriptRoot '..\dist'))
+﻿param([string]$InputDirectory = (Join-Path $PSScriptRoot '..\inputs'), [string]$OutputDirectory = (Join-Path $PSScriptRoot '..\dist'))
 $ErrorActionPreference = 'Stop'
 $repoSource = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\src'))
 $buildInput = [System.IO.Path]::GetFullPath($InputDirectory)
