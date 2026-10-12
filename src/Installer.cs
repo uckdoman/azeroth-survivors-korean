@@ -10,22 +10,22 @@ using System.Windows.Forms;
 
 [assembly: AssemblyTitle("Azeroth Survivors 한국어 패치")]
 [assembly: AssemblyDescription("게임 폴더에 넣고 실행하는 한국어 패치 설치기")]
-[assembly: AssemblyVersion("0.69.1.1")]
+[assembly: AssemblyVersion("0.71.0.1")]
 
 internal static class Installer
 {
-    const string OriginalHash = "41161a556ed31e6c4fef3d1621d308c625daa6a8d55e8f2f8464db494fbc9e21";
-    const string PatchedHash = "c902b1aa057f89bd4ef238cfb73adec8d345acf4780940cb96f78bdb29eb15a8";
-    const string OverlayHash = "831eb84a21736635210f2016ec0329e263c9dab781e92bd467896072c5c87260";
+    const string OriginalHash = "180dd51036e9c0c6b60a27e39869e80b8397a6d2ea0a73fc8c57ee3dd7b7f22f";
+    const string PatchedHash = "6cc6aeb6c9b1f58f23997eb5b9f5c3f791c3ae310b359b0e9b67d8b05bd54d68";
+    const string OverlayHash = "aba0e46a60c39064d477fe9df7ee8c5d84b06bbd8b648c126ae2dc2c362d788a";
     const string AssetsHash = "49473c3cd0f47cd949e579240ea694c793aab813549920f1073ef73017364adf";
     const string Patch2Hash = "366edee41642a5dda22ed90cc252b543ee375755b7e8bee81e2a6cd59fd7b286";
     const string Title = "아제로스 서바이버 한글 패치";
-    const string PatchVersion = "0.69.1.1";
+    const string PatchVersion = "0.71.0.1";
     const string VersionMessage = "게임과 한글 패치가 최신 버전인지 확인해 주세요.";
     const string RetryMessage = "설치하지 못했습니다. 게임을 종료하고 다시 실행해 주세요.";
     // Add exact hashes of released Korean builds here when producing a new patch.
     static readonly string[] PreviousGameHashes = new string[0];
-    static readonly string[] PreviousOverlayHashes = { "60268bcad6a3817a621a47e6f745e3a353fadf0ad85ec7f0a92b09dda1eb452f" };
+    static readonly string[] PreviousOverlayHashes = { "60268bcad6a3817a621a47e6f745e3a353fadf0ad85ec7f0a92b09dda1eb452f", "831eb84a21736635210f2016ec0329e263c9dab781e92bd467896072c5c87260", "3ab8c0163c5b1c00ef0e56edc9d7ebb12afe3bdc67d39a7cb1ac8e80a74c79df" };
 
     sealed class UserError : Exception { public UserError(string message) : base(message) { } }
 
