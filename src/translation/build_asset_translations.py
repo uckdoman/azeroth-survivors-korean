@@ -8,6 +8,7 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT.parent / 'analysis-deps'))
 import mpyq
+from asset_overlay import API_KEY_TABLES
 
 ASSIGNMENT = re.compile(rb'''(?m)^([A-Z_][A-Z0-9_]*)[ \t]*=[ \t]*("(?:\\.|[^"\\\r\n])*"|'(?:\\.|[^'\\\r\n])*')''')
 
@@ -41,7 +42,7 @@ def string(pool, offset):
 
 def build():
     old = ROOT.parent / 'azeroth-latest'
-    template_path = ROOT.parent / 'azeroth-0.71.4' / 'testgame' / 'Data' / 'patch-Z.MPQ'
+    template_path = ROOT / 'overlay-template.mpq'
     report = json.loads((old / 'dbc-patch-report.json').read_text(encoding='utf-8'))
     archive = mpyq.MPQArchive(str(template_path), listfile=False)
     database = dict(schema=1, template_sha256=digest(template_path.read_bytes()), fonts=[], source_files={},
@@ -49,6 +50,7 @@ def build():
     ambiguities = 0
     try:
         names = read(archive, '(listfile)').decode('utf-8').splitlines()
+        assert not ({name.casefold() for name in names} & {name.casefold() for name in API_KEY_TABLES}), 'Template contains internal API keys'
         for name in names:
             if name == '(listfile)':
                 continue

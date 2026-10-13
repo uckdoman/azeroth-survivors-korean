@@ -9,6 +9,7 @@ import mpyq
 
 ASSIGNMENT = re.compile(rb'''(?m)^([A-Z_][A-Z0-9_]*)[ \t]*=[ \t]*("(?:\\.|[^"\\\r\n])*"|'(?:\\.|[^'\\\r\n])*')''')
 BASE_ORDER = ('dbc.mpq', 'speech.mpq', 'fonts.mpq', 'interface.mpq', 'misc.mpq', 'sound.mpq', 'wmo.mpq', 'terrain.mpq', 'texture.mpq', 'model.mpq')
+API_KEY_TABLES = ('DBFilesClient\\SpellDispelType.dbc',)
 
 
 def digest(data):
@@ -180,12 +181,20 @@ def apply(data_dir, templatePath, assetDbPath, outputPath):
     template_bytes = pathlib.Path(templatePath).read_bytes()
     if database.get('schema') != 1 or digest(template_bytes) != database['template_sha256']:
         raise ValueError('Asset template does not match the dictionary')
+    dictionary_names = {name.casefold() for section in ('source_files', 'tables') for name in database[section]}
+    for name in API_KEY_TABLES:
+        if name.casefold() in dictionary_names:
+            raise ValueError('Internal API key table must remain original: ' + name)
     output = pathlib.Path(outputPath)
     if output.exists():
         raise ValueError('Overlay output already exists')
     archives, archive_names = _mount(data_dir)
     template = None
     try:
+        template = RawMPQ(str(templatePath), listfile=False)
+        for name in API_KEY_TABLES:
+            if template.get_hash_table_entry(name) is not None:
+                raise ValueError('Asset template overrides an internal API key table: ' + name)
         current = {}
         skipped = {}
         for name in database['source_files']:
@@ -199,7 +208,6 @@ def apply(data_dir, templatePath, assetDbPath, outputPath):
             _write_exclusive(output, template_bytes)
             return dict(overlay_sha256=database['template_sha256'], fast_path=True, source_archives=archive_names,
                         matched_counts=database['reference_counts'], skipped={})
-        template = RawMPQ(str(templatePath), listfile=False)
         files = {name: template.read_file(name) for name in database['fonts']}
         counts = {}
         for name, meta in database['source_files'].items():

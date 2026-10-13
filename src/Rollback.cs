@@ -9,7 +9,7 @@ using System.Text;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
 
-[assembly: AssemblyVersion("0.71.4.6")]
+[assembly: AssemblyVersion("0.71.4.7")]
 internal static class Rollback
 {
     const string Original = "f497c0589920e2fdd8c84d89b6602592bd7c609dccd55b39ea27578cc10f495a";
@@ -36,7 +36,7 @@ internal static class Rollback
                 File.SetAttributes(data, File.GetAttributes(data) | FileAttributes.Hidden);
                 string sourceHash = Original;
                 string diskSource = null;
-                string version = "0.71.4.6";
+                string version = "0.71.4.7";
                 string ownedOverlay = Overlay;
                 string statePath = Path.Combine(data, "installed.json");
                 if (File.Exists(statePath))
