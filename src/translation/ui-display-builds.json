@@ -463,6 +463,503 @@
           }
         }
       }
+    },
+    "72b51b222171059029eb762ce800c97614ea94f88de7c14543c5236a6fc34743": {
+      "entries": {
+        "Elwynn Forest": {
+          "contexts": {
+            "metadata": [
+              "d6b5def744740e8806b14633a2604e9dd3b28939b916a8897a3321636d426aab"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107232776
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107232776": "엘윈 숲"
+            }
+          }
+        },
+        "The Defias Uprising": {
+          "contexts": {
+            "metadata": [
+              "64d73c6dab660fffa85760fcf37c79c69c98f7b5289877fd3740ee635d4294ef"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107232792
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107232792": "데피아즈단의 봉기"
+            }
+          }
+        },
+        "Kobolds pour out of Jasperlode Mine, gnolls cross the river and the Defias Brotherhood marches on the farms. Their leader waits for you at the end.": {
+          "contexts": {
+            "metadata": [
+              "127eac0e2dffebfa76bf956a01784c3c95753163abc90d0bed0970a7df000220"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107232872
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107232872": "코볼트가 석영 광산에서 쏟아져 나오고, 놀은 강을 건너며, 데피아즈 결사단은 농장으로 진격합니다. 그들의 두목이 마지막에 기다리고 있습니다."
+            }
+          }
+        },
+        "Duskwood": {
+          "contexts": {
+            "metadata": [
+              "00cc4b1f7f22b1191ba4541d78780a59b014dc9b938a36edb3a1b756c116e858"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107232960
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107232960": "그늘숲"
+            }
+          }
+        },
+        "Night of the Nightbane": {
+          "contexts": {
+            "metadata": [
+              "5893f047fc09a7c3a73f3dcce0e55baf0c1469393714455b8ffccdcd4d73829d"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107232976
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107232976": "파멸의어둠일족의 밤"
+            }
+          }
+        },
+        "The graves of Raven Hill stand open. Worgen hunt between the trees, and Morbent Fel calls the dead of Duskwood to war.": {
+          "contexts": {
+            "metadata": [
+              "664f01884a4420d833b20fe4d64d240bc00673345bfe1a6246b350af2e2a5bb4"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107233056
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107233056": "까마귀 언덕의 무덤이 열렸습니다. 늑대인간이 나무 사이에서 사냥하고, 모벤트 펠이 그늘숲의 망자들을 전쟁으로 부릅니다."
+            }
+          }
+        },
+        "Warsong Gulch": {
+          "contexts": {
+            "metadata": [
+              "007e16496c86642e7c610ee33df1d234bcd7eb8713a2feae3788724b78ec8e9a"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107233144
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107233144": "전쟁노래 협곡"
+            }
+          }
+        },
+        "The Burning Legion": {
+          "contexts": {
+            "metadata": [
+              "77e31b13c62c559f2328dc0814ae90df115d2fa564d27b6958bd64095643841b"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107233160
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107233160": "불타는 군단"
+            }
+          }
+        },
+        "A demon gate tears open over the gulch. Imps, felhounds and satyrs pour through, and Lord Kazzak follows.": {
+          "contexts": {
+            "metadata": [
+              "110c5b767ccf80e183b8b6750daed2b8b3babdbeb3048e3a4c464881a013b4ae"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107233240
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107233240": "협곡 위에 악마의 차원문이 열립니다. 임프, 지옥사냥개, 사티로스가 쏟아져 나오고, 군주 카자크가 그 뒤를 따릅니다."
+            }
+          }
+        },
+        "Arathi Basin": {
+          "contexts": {
+            "metadata": [
+              "617a3105c3d58fe293796301093895a57933c70269d37d199b082281b790d24c"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107233328
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107233328": "아라시 분지"
+            }
+          }
+        },
+        "The Scourge Invasion": {
+          "contexts": {
+            "metadata": [
+              "10c81f8d54a7db4d89c2bfbad7be8a12ed2008db73ecc31ef3e535e3764c06ab"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107233344
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107233344": "스컬지의 침공"
+            }
+          }
+        },
+        "Necropolises hang over the Basin. The dead of Arathor rise, and Kel'Thuzad comes to claim the living.": {
+          "contexts": {
+            "metadata": [
+              "72fa4c22fe42ff4fb1a9767ef560d28f9a555bba5d7d3777bb02091e095a9c26"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107233424
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107233424": "분지 위로 죽음의 요새들이 떠 있습니다. 아라소르의 망자들이 일어나고, 켈투자드가 산 자들을 거두러 옵니다."
+            }
+          }
+        },
+        "Feralas": {
+          "contexts": {
+            "metadata": [
+              "367135c5739e9d51ca31fb2b0f7ba95dff1dd33184379cd73316f5dde9213e8b"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107233512
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107233512": "페랄라스"
+            }
+          }
+        },
+        "The Gates of Dire Maul": {
+          "contexts": {
+            "metadata": [
+              "78d06748ae2608ec661e4244ddd3f37057935741db683f55976efc49d5699a35"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107233528
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107233528": "혈투의 전장 입구"
+            }
+          }
+        },
+        "The Gordunni ogres break out of Dire Maul with the Woodpaw gnolls and the wild things of Feralas behind them. King Gordok himself comes to claim the forest.": {
+          "contexts": {
+            "metadata": [
+              "8eebfcca4383f680a65b01c814c49b853be66c44de61f8120c06ebfa26f63996"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107233608
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107233608": "골두니 오우거가 혈투의 전장에서 뛰쳐나옵니다. 덩굴발일족 놀과 페랄라스의 야생 생물들이 그 뒤를 따르고, 왕 고르독이 숲을 차지하러 직접 나섭니다."
+            }
+          }
+        },
+        "Gurubashi Arena": {
+          "contexts": {
+            "metadata": [
+              "48a879b03dd9ab8bb178e7d5ae47aea470b447820a67f1f2ed4942a7f0bbe195"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107233696
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107233696": "구루바시 투기장"
+            }
+          }
+        },
+        "The Blood God Wakes": {
+          "contexts": {
+            "metadata": [
+              "71c1b744dd7d33f5ac9f480a05fda30f68cd214e25cdf45988402fce294b4a8f"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107233712
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107233712": "피의 신이 깨어나다"
+            }
+          }
+        },
+        "The Hakkari turn the Arena into an altar. Trolls, raptors and the Blood God's serpents fill the ring, and Hakkar the Soulflayer walks the world again.": {
+          "contexts": {
+            "metadata": [
+              "192f4232f5e0c55c340dbcd56183a9079383d52f6ef92f7da6b6260994dac518"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107233792
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107233792": "학카르부족이 투기장을 제단으로 바꿉니다. 트롤과 랩터, 혈신의 뱀이 경기장을 채우고, 영혼의 약탈자 학카르가 다시 세상을 거닙니다."
+            }
+          }
+        },
+        "Alterac Valley": {
+          "contexts": {
+            "metadata": [
+              "cb5a945d32caba9a652fdebd31138e4c6b7969db26b84a7f4b7d0f446117c657"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107233880
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107233880": "알터랙 계곡"
+            }
+          }
+        },
+        "The Frozen Wilds": {
+          "contexts": {
+            "metadata": [
+              "ad9846100e9912b2445904a771a1bee9cd7bbe328a5ac54b468e6a3ee2764e21"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107233896
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107233896": "얼어붙은 야생"
+            }
+          }
+        },
+        "The valley wakes. Troggs swarm from the mines, the wolves are starving, and the Ice Lord stirs beneath the snow.": {
+          "contexts": {
+            "metadata": [
+              "ff53b8cf1920579f07e196c2cab62bd4225e7438f78d78b97079659f5273a63d"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107233976
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107233976": "계곡이 깨어납니다. 트로그가 광산에서 몰려나오고, 늑대들은 굶주리며, 얼음군주가 눈 아래에서 움직입니다."
+            }
+          }
+        },
+        "Blackrock Mountain": {
+          "contexts": {
+            "metadata": [
+              "237b8b053936e0581040873b9805578e4139ba89ac8aeb73b26768455221ca47"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107234064
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107234064": "검은바위 산"
+            }
+          }
+        },
+        "The Lord of Blackrock": {
+          "contexts": {
+            "metadata": [
+              "23bc66e0ad100dc84db96ff33df0628811cd080dccf016e6f62ecb4b4f160ce5"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107234080
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107234080": "검은바위의 군주"
+            }
+          }
+        },
+        "The Dark Iron and the Blackrock clan march out of the mountain together, fire elementals and dragonkin at their side. Above them circles the Lord of Blackrock.": {
+          "contexts": {
+            "metadata": [
+              "384883952e3c1ba2cf4d4fcf26008e23a027ea98735ee87592d76e06bf698bbe"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107234160
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107234160": "검은무쇠와 검은바위 부족이 함께 산에서 진군합니다. 불의 정령과 용족이 곁을 지키고, 그 위로 검은바위의 지배자가 맴돕니다."
+            }
+          }
+        },
+        "Gates of Ahn'Qiraj": {
+          "contexts": {
+            "metadata": [
+              "b831118a103ca6b2ed1fcf2d0b0e13a0c35c16255b9a6ca6b1a5b3e6be93472f"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107234248
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107234248": "안퀴라즈 성문"
+            }
+          }
+        },
+        "The Old God Stirs": {
+          "contexts": {
+            "metadata": [
+              "647d7a79b4e98b81778d915e2430aa07ed28f5afd5755043630bb063610bfd21"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107234264
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107234264": "고대 신이 꿈틀거린다"
+            }
+          }
+        },
+        "The Scarab Wall has fallen. The silithid swarm and the Qiraji legions spill across the sands, and behind them C'Thun opens its eye.": {
+          "contexts": {
+            "metadata": [
+              "f1fa4849ef877d2c2ee8a440ac63c519870b71049cb2a577fd76ec620fbc1130"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107234344
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107234344": "스카라베 성벽이 무너졌습니다. 실리시드 무리와 퀴라지 군단이 모래벌판으로 쏟아져 나오고, 그 뒤에서 쑨이 눈을 뜹니다."
+            }
+          }
+        },
+        "{0} the {1} {2} enters {3}. Move to begin.": {
+          "contexts": {
+            "format": [
+              "497e9aa64cf77e5463612308855cf41797da986a2522ed45c623df9a522e4501"
+            ]
+          },
+          "references": {
+            "format": [
+              5456428388
+            ]
+          },
+          "reference_values": {
+            "format": {
+              "5456428388": "{0} {1} {2} 등장: {3}. 이동하여 시작하세요."
+            }
+          }
+        },
+        "|cffff4040{0} is locked: a {1} opens it by defeating {2} in {3}.|r": {
+          "contexts": {
+            "format": [
+              "497e9aa64cf77e5463612308855cf41797da986a2522ed45c623df9a522e4501"
+            ]
+          },
+          "references": {
+            "format": [
+              5456429504
+            ]
+          },
+          "reference_values": {
+            "format": {
+              "5456429504": "|cffff4040{0} 잠김: {1}이(가) {2}을(를) {3}에서 처치하면 개방됩니다.|r"
+            }
+          }
+        }
+      }
     }
   }
 }
