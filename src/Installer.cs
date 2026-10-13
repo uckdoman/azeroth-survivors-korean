@@ -11,13 +11,13 @@ using System.Windows.Forms;
 
 [assembly: AssemblyTitle("Azeroth Survivors 한국어 패치")]
 [assembly: AssemblyDescription("게임 폴더에 넣고 실행하는 한국어 패치 설치기")]
-[assembly: AssemblyVersion("0.71.4.11")]
+[assembly: AssemblyVersion("0.71.4.12")]
 
 internal static class Installer
 {
     const string OverlayHash = "aba0e46a60c39064d477fe9df7ee8c5d84b06bbd8b648c126ae2dc2c362d788a";
     const string Title = "아제로스 서바이버 한글 패치";
-    const string PatchVersion = "0.71.4.11";
+    const string PatchVersion = "0.71.4.12";
     const string RetryMessage = "설치하지 못했습니다. 게임을 종료하고 다시 실행해 주세요.";
     static readonly string[] PreviousOverlayHashes = {
         "60268bcad6a3817a621a47e6f745e3a353fadf0ad85ec7f0a92b09dda1eb452f",
@@ -211,9 +211,9 @@ internal static class Installer
                         throw;
                     }
                     Tell(restore ? "영문판으로 복원했습니다." : InstallMessage(pendingLauncher), quiet);
-                    if (!restore && File.Exists(Path.Combine(folder, "AzerothSurvivors_KoreanPatch.update.exe")))
+                    if (!restore)
                     {
-                        // Older launchers cannot remove their download; the new launcher waits for it to exit.
+                        // The new launcher waits for the installer and retired launcher images to exit.
                         string cleanupLauncher = pendingLauncher ? Path.Combine(backupDir, "launcher.pending.exe") :
                             Path.Combine(folder, "AzerothSurvivors_KoreanLauncher.exe");
                         try

@@ -12,7 +12,7 @@ using System.Web.Script.Serialization;
 using System.Windows.Forms;
 
 #if !INSTALLER_BUILD
-[assembly: AssemblyVersion("0.71.4.11")]
+[assembly: AssemblyVersion("0.71.4.12")]
 #endif
 
 internal sealed class ReleaseInfo
@@ -24,12 +24,29 @@ internal sealed class ReleaseInfo
     internal string TranslationHash, RuntimeHash, AssetTranslationHash;
 }
 
+public sealed class CleanupMetadataReader : MarshalByRefObject
+{
+    public string[] Read(byte[] image)
+    {
+        Assembly assembly = Assembly.ReflectionOnlyLoad(image);
+        AssemblyName name = assembly.GetName();
+        string publicKey = null;
+        using (Stream key = assembly.GetManifestResourceStream("release-public-key.xml"))
+        {
+            if (key != null && key.Length <= Launcher.ManifestLimit)
+                using (StreamReader reader = new StreamReader(key, Encoding.UTF8)) publicKey = reader.ReadToEnd();
+        }
+        return new string[] { name.Name, name.Version.ToString(), assembly.ManifestModule.ModuleVersionId.ToString("N"), publicKey };
+    }
+}
+
 internal static class Launcher
 {
     internal const string FeedUrl = "https://github.com/uckdoman/azeroth-survivors-korean/releases/latest/download/update.json";
     internal const int ManifestLimit = 65536;
     internal const long InstallerLimit = 128L * 1024 * 1024;
     private static readonly JavaScriptSerializer Json = new JavaScriptSerializer { MaxJsonLength = ManifestLimit, RecursionLimit = 8 };
+    private static readonly Dictionary<string, string[]> CleanupMetadata = new Dictionary<string, string[]>();
     private static bool Quiet;
 
     // Exit codes: 0 game started / current; 10 verified update ready (check-only);
@@ -46,8 +63,7 @@ internal static class Launcher
                 Path.GetFileName(cleanupFolder) == ".azeroth-ko") cleanupFolder = Path.GetDirectoryName(cleanupFolder);
             for (int attempt = 0; attempt < 60; attempt++)
             {
-                CleanupUpdateInstaller(cleanupFolder);
-                if (!File.Exists(Path.Combine(cleanupFolder, "AzerothSurvivors_KoreanPatch.update.exe"))) return 0;
+                if (!CleanupUpdateInstaller(cleanupFolder)) return 0;
                 Thread.Sleep(500);
             }
             return 0;
@@ -166,7 +182,7 @@ internal static class Launcher
         return StartExisting(folder, trusted, result);
     }
 
-    internal static void CleanupUpdateInstaller(string folder)
+    internal static bool CleanupUpdateInstaller(string folder)
     {
         string installer = Path.Combine(folder, "AzerothSurvivors_KoreanPatch.update.exe");
         try
@@ -174,6 +190,69 @@ internal static class Launcher
             if (!IsGameRunning(installer)) File.Delete(installer);
         }
         catch { }
+        return CleanupRetiredLaunchers(folder) || File.Exists(installer);
+    }
+
+    private static bool CleanupRetiredLaunchers(string folder)
+    {
+        bool pending = false;
+        try
+        {
+            bool restored;
+            Assembly current = Assembly.GetExecutingAssembly();
+            AssemblyName currentName = current.GetName();
+            if (ReadInstalledVersion(folder, out restored) != currentName.Version || restored) return false;
+            string statePath = Path.Combine(folder, ".azeroth-ko", "installed.json");
+            Dictionary<string, object> state = Json.Deserialize<Dictionary<string, object>>(File.ReadAllText(statePath, Encoding.UTF8));
+            object deferred;
+            if (!state.TryGetValue("launcher_pending", out deferred) || !(deferred is bool) || (bool)deferred) return false;
+            string activePath = Path.Combine(folder, "AzerothSurvivors_KoreanLauncher.exe");
+            string[] active = ReadCleanupMetadata(activePath);
+            // A retired or pending process must not clean files needed by an unfinished replacement.
+            if (active[2] != current.ManifestModule.ModuleVersionId.ToString("N")) return false;
+            string publicKey = ReadResource("release-public-key.xml");
+            foreach (string path in Directory.GetFiles(folder, ".launcher-old-*.exe"))
+            {
+                if (!Regex.IsMatch(Path.GetFileName(path), @"^\.launcher-old-[0-9a-f]{32}\.exe$")) continue;
+                try
+                {
+                    if ((File.GetAttributes(path) & (FileAttributes.Directory | FileAttributes.ReparsePoint)) != 0 ||
+                        new FileInfo(path).Length > InstallerLimit) continue;
+                    string[] previous = ReadCleanupMetadata(path);
+                    if (previous[0] != currentName.Name || new Version(previous[1]) >= currentName.Version ||
+                        previous[3] != publicKey) continue;
+                    File.Delete(path);
+                }
+                catch (IOException) { pending = pending || File.Exists(path); }
+                catch (UnauthorizedAccessException) { pending = pending || File.Exists(path); }
+                catch { }
+            }
+        }
+        catch { }
+        return pending;
+    }
+
+    private static string[] ReadCleanupMetadata(string path)
+    {
+        byte[] image = File.ReadAllBytes(path);
+        string digest = HashBytes(image);
+        lock (CleanupMetadata)
+        {
+            string[] result;
+            if (CleanupMetadata.TryGetValue(digest, out result)) return result;
+            // Separate domains allow repeated reads and different images with the same assembly identity.
+            AppDomain domain = AppDomain.CreateDomain("LauncherCleanup-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                CleanupMetadataReader reader = (CleanupMetadataReader)domain.CreateInstanceFromAndUnwrap(
+                    Assembly.GetExecutingAssembly().Location, typeof(CleanupMetadataReader).FullName);
+                result = reader.Read(image);
+                if (CleanupMetadata.Count >= 64) CleanupMetadata.Clear();
+                CleanupMetadata[digest] = result;
+                return result;
+            }
+            finally { AppDomain.Unload(domain); }
+        }
     }
 
     internal static bool IsNewer(Version candidate, Version installed) { return candidate.CompareTo(installed) > 0; }
