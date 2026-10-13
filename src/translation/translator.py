@@ -287,6 +287,13 @@ def translate(input_path, output_path, db_path):
             payload.extend(raw + b'\0')
         return intern[raw]
 
+    def store_aligned(raw_or_factory):
+        payload.extend(b'\0' * (-len(payload) % 8))
+        address = base + new_rva + len(payload)
+        raw = raw_or_factory(address) if callable(raw_or_factory) else raw_or_factory
+        payload.extend(raw + b'\0')
+        return address
+
     def replace_metadata(ref, english, korean, kind='metadata'):
         pointer, length = struct.unpack_from('<QQ', source, ref)
         assert string_at(pointer, length) == english
@@ -469,6 +476,10 @@ def translate(input_path, output_path, db_path):
     counts['inline'] += len(applied_ui)
     counts['direct'] += len(applied_owned)
 
+    from ui_display_tables import apply_display_table_bindings
+    applied_tables, new_relocations = apply_display_table_bindings(
+        source, data, pe, store_aligned, database.get('display_table_bindings', {}).get(source_hash, []))
+
     for script in database['scripts']:
         original = script['original'].encode('utf-8')
         cursor = rdata.PointerToRawData
@@ -485,6 +496,23 @@ def translate(input_path, output_path, db_path):
                 if ref % 8 == 0 and ref - rdata.PointerToRawData + rdata.VirtualAddress in relocations:
                     replace_metadata(ref, script['original'], script['translated'], 'scripts')
 
+    if new_relocations:
+        directory = pe.OPTIONAL_HEADER.DATA_DIRECTORY[pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_BASERELOC']]
+        at = pe.get_offset_from_rva(directory.VirtualAddress)
+        rebuilt = bytearray(source[at:at + directory.Size])
+        assert len(rebuilt) == directory.Size and directory.Size % 4 == 0
+        pages = {}
+        for rva in sorted(set(new_relocations)):
+            assert new_rva <= rva < new_rva + len(payload) and rva % 8 == 0
+            pages.setdefault(rva & ~0xfff, []).append(0xa000 | (rva & 0xfff))
+        for page, entries in sorted(pages.items()):
+            if len(entries) % 2:
+                entries.append(0)
+            rebuilt.extend(struct.pack('<II', page, 8 + 2 * len(entries)))
+            rebuilt.extend(struct.pack('<' + 'H' * len(entries), *entries))
+        address = store_aligned(bytes(rebuilt))
+        struct.pack_into('<II', data, directory.get_file_offset(), address - base, len(rebuilt))
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
     if payload:
         section_offset = pe.sections[-1].get_file_offset() + 40
@@ -498,10 +526,13 @@ def translate(input_path, output_path, db_path):
         name = b'.korean'
         if name in existing_names:
             name = next(('.kor' + str(i)).encode() for i in range(1, 9999) if ('.kor' + str(i)).encode() not in existing_names)
-        data[section_offset:section_offset + 40] = struct.pack('<8sIIIIIIHHI', name, len(payload), new_rva, raw_size, new_raw, 0, 0, 0, 0, 0x40000040)
+        characteristics = 0x60000060 if applied_tables else 0x40000040
+        data[section_offset:section_offset + 40] = struct.pack('<8sIIIIIIHHI', name, len(payload), new_rva, raw_size, new_raw, 0, 0, 0, 0, characteristics)
         struct.pack_into('<H', data, pe.FILE_HEADER.get_field_absolute_offset('NumberOfSections'), pe.FILE_HEADER.NumberOfSections + 1)
         struct.pack_into('<I', data, pe.OPTIONAL_HEADER.get_field_absolute_offset('SizeOfImage'), align(new_rva + len(payload), pe.OPTIONAL_HEADER.SectionAlignment))
         struct.pack_into('<I', data, pe.OPTIONAL_HEADER.get_field_absolute_offset('SizeOfInitializedData'), pe.OPTIONAL_HEADER.SizeOfInitializedData + raw_size)
+        if applied_tables:
+            struct.pack_into('<I', data, pe.OPTIONAL_HEADER.get_field_absolute_offset('SizeOfCode'), pe.OPTIONAL_HEADER.SizeOfCode + raw_size)
         struct.pack_into('<I', data, pe.OPTIONAL_HEADER.get_field_absolute_offset('CheckSum'), 0)
         output_path.write_bytes(data)
     else:
@@ -511,6 +542,7 @@ def translate(input_path, output_path, db_path):
               'native_update_modified': False, 'unknown_text_translated': False,
               'skipped_owned_strings': skipped_owned, 'skipped_iterator_bounds': skipped_iterator_bounds,
               'applied_ui_bindings': applied_ui,
+              'applied_display_tables': applied_tables,
               'applied_short_string_guards': applied_short_guards,
               'applied_owned_strings': applied_owned}
     pathlib.Path(str(output_path) + '.translation.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')

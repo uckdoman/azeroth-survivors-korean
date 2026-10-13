@@ -215,5 +215,8 @@ for build_hash, build in extra_ui.items():
     if build.get('bindings'):
         assert build_hash not in database.get('ui_bindings', {})
         database.setdefault('ui_bindings', {})[build_hash] = build['bindings']
+display_tables = ROOT / 'ui-display-tables.json'
+if display_tables.exists():
+    database['display_table_bindings'] = read(display_tables)['sources']
 (ROOT / 'translations.json').write_text(json.dumps(database, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
 print(json.dumps({'database_entries': len(entries), 'exact_profile_references': len(profile_patches), 'whole_scripts': len(scripts), 'database_bytes': (ROOT / 'translations.json').stat().st_size, 'skipped_owned_count': len(skipped_owned), 'skipped_iterator_bounds': skipped_iterator_bounds, 'profile_output_sha256': expected_output}))

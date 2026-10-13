@@ -1,0 +1,67 @@
+{
+  "sources": {
+    "72b51b222171059029eb762ce800c97614ea94f88de7c14543c5236a6fc34743": [
+      {
+        "kind": "race_ui_shadow",
+        "source_sha256": "72b51b222171059029eb762ce800c97614ea94f88de7c14543c5236a6fc34743",
+        "table_file_offset": "0x6644ae8",
+        "table_rva": "0x66460e8",
+        "table_sha256": "1fa8f3d2c759a76f7bcdfca63af34da0499a710cbe54bdc5365c88e459cdccfa",
+        "row_bytes": 88,
+        "row_count": 8,
+        "names": [
+          {
+            "english": "Human",
+            "korean": "인간"
+          },
+          {
+            "english": "Orc",
+            "korean": "오크"
+          },
+          {
+            "english": "Dwarf",
+            "korean": "드워프"
+          },
+          {
+            "english": "Night Elf",
+            "korean": "나이트 엘프"
+          },
+          {
+            "english": "Undead",
+            "korean": "언데드"
+          },
+          {
+            "english": "Tauren",
+            "korean": "타우렌"
+          },
+          {
+            "english": "Gnome",
+            "korean": "노움"
+          },
+          {
+            "english": "Troll",
+            "korean": "트롤"
+          }
+        ],
+        "lookup_address": "0x14664bb60",
+        "lookup_before_hex": "40616446010000009861644601000000f0616446010000004862644601000000a062644601000000f8626446010000005063644601000000",
+        "getter_address": "0x1453b0460",
+        "getter_before_hex": "80c1fe80f906770f0fb6c1488d0deeb62901488b04c1c3488d056a5c2901c3cc",
+        "ui_calls": [
+          {
+            "address": "0x140271163",
+            "before_hex": "e8f8f21305",
+            "role": "selected race caption packed formatter {0} {1}"
+          },
+          {
+            "address": "0x140274250",
+            "before_hex": "e80bc21305",
+            "role": "race selection option label dynamic owned clone"
+          }
+        ],
+        "ui_leas": [],
+        "canonical_parser_and_all_other_consumers": "Preserve source bytes and English names. Only the two UI calls use the Korean view."
+      }
+    ]
+  }
+}

@@ -958,6 +958,277 @@
               "5456429504": "|cffff4040{0} 잠김: {1}이(가) {2}을(를) {3}에서 처치하면 개방됩니다.|r"
             }
           }
+        },
+        "Warrior": {
+          "contexts": {
+            "metadata": [
+              "1b363b296fa278af76704b2978e5d113b8f63fa21b01f8d38ba66fd60ee2bb4d"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107240552
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107240552": "전사"
+            }
+          }
+        },
+        "Paladin": {
+          "contexts": {
+            "metadata": [
+              "e92724b0c262d9fefa49596cbb482c1cf7e337deb493b33a65148f21ab28db4d"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107240696
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107240696": "성기사"
+            }
+          }
+        },
+        "Hunter": {
+          "contexts": {
+            "metadata": [
+              "bba946b952732ad09e0791a8a4271172350e58766c5f6c6ff42daa32fc07caaf"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107240840
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107240840": "사냥꾼"
+            }
+          }
+        },
+        "Rogue": {
+          "contexts": {
+            "metadata": [
+              "1b71195c495e3f1e7032fc79a130311994a8a84cf83d39ca65666bb266281c55"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107240984
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107240984": "도적"
+            }
+          }
+        },
+        "Priest": {
+          "contexts": {
+            "metadata": [
+              "e540ecf6b3ec00a4d89da3d74742ebbccf3f2aff3529b7c93ad22abe8145950e"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107241128
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107241128": "사제"
+            }
+          }
+        },
+        "Shaman": {
+          "contexts": {
+            "metadata": [
+              "e0a71806941b19ed69d146d98f6786fbcf4f5eeb7f47a58b48a866dad6123993"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107241272
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107241272": "주술사"
+            }
+          }
+        },
+        "Mage": {
+          "contexts": {
+            "metadata": [
+              "c8c796044529e366f351c3b765377d68e73cd222fa43ecae782c69b5ca8416fe"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107241416
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107241416": "마법사"
+            }
+          }
+        },
+        "Warlock": {
+          "contexts": {
+            "metadata": [
+              "0ce1e85b8a4acaaabab3e0a436196444289a4844a1dad8c897f0fe129dbd38b2"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107241560
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107241560": "흑마법사"
+            }
+          }
+        },
+        "Druid": {
+          "contexts": {
+            "metadata": [
+              "9b0b08058f690499ad0753a8602b1ec73d88cfcb4dce20e34bc27670ab0610d3"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107241704
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107241704": "드루이드"
+            }
+          }
+        },
+        "Moon, storm and growth. Roots, hurricanes and the steadiest self-healing.": {
+          "contexts": {
+            "metadata": [
+              "2fe47783fed8c4f993b1339658eacab32f726a89b60553c6cdcba2d6fd56a8c6"
+            ]
+          },
+          "references": {
+            "metadata": [
+              107241784
+            ]
+          },
+          "reference_values": {
+            "metadata": {
+              "107241784": "달과 폭풍, 생명의 힘을 다룹니다. 뿌리와 허리케인으로 적을 막고, 꾸준히 자신을 치유합니다."
+            }
+          }
+        },
+        "Anticipation": {
+          "contexts": {
+            "metadata": [
+              "483242e765ab64aad1d3a32b80c4db817f5f56c85c6a79189bd060e9795c9839",
+              "5c6d8b23adc551cc4e09f35b0f6a3d7b22e54b5a441ffbfc5ac75561298984c7"
+            ],
+            "direct": [],
+            "format": []
+          },
+          "references": {
+            "metadata": [
+              107293264,
+              107341856
+            ],
+            "direct": [],
+            "format": []
+          },
+          "reference_values": {
+            "metadata": {
+              "107293264": "직감",
+              "107341856": "선견지명"
+            },
+            "direct": {},
+            "format": {}
+          }
+        },
+        "Benediction": {
+          "contexts": {
+            "metadata": [
+              "596c97ee9dee8a418bdafedccd4cfc490d05fd265d909e2e164ddaf495e78dd1"
+            ],
+            "direct": [],
+            "format": []
+          },
+          "references": {
+            "metadata": [
+              107305160
+            ],
+            "direct": [],
+            "format": []
+          },
+          "reference_values": {
+            "metadata": {
+              "107305160": "축복의 기도"
+            },
+            "direct": {},
+            "format": {}
+          }
+        },
+        "Protection": {
+          "contexts": {
+            "metadata": [
+              "32b368246102a4ccceb9db04a3b4401c7af3f04410433ee290393315f57d36c7",
+              "19476af3ae494db94fc4042c2619a214768dd3865661285626a7dbb3d6a6f641"
+            ],
+            "direct": [],
+            "format": []
+          },
+          "references": {
+            "metadata": [
+              107374936,
+              107375072
+            ],
+            "direct": [],
+            "format": []
+          },
+          "reference_values": {
+            "metadata": {
+              "107374936": "방어",
+              "107375072": "보호"
+            },
+            "direct": {},
+            "format": {}
+          }
+        },
+        "Restoration": {
+          "contexts": {
+            "metadata": [
+              "658b48970ce21d44e5880527c1da8fefbce3fa366e0e7fb669a6f319bd13974b",
+              "703562670ea873495113ff2f7f15cf9d89161178e0962d88570decfb893b26b0"
+            ],
+            "direct": [],
+            "format": []
+          },
+          "references": {
+            "metadata": [
+              107375936,
+              107376536
+            ],
+            "direct": [],
+            "format": []
+          },
+          "reference_values": {
+            "metadata": {
+              "107375936": "복원",
+              "107376536": "회복"
+            },
+            "direct": {},
+            "format": {}
+          }
         }
       }
     }
