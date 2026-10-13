@@ -10,6 +10,7 @@ import mpyq
 ASSIGNMENT = re.compile(rb'''(?m)^([A-Z_][A-Z0-9_]*)[ \t]*=[ \t]*("(?:\\.|[^"\\\r\n])*"|'(?:\\.|[^'\\\r\n])*')''')
 BASE_ORDER = ('dbc.mpq', 'speech.mpq', 'fonts.mpq', 'interface.mpq', 'misc.mpq', 'sound.mpq', 'wmo.mpq', 'terrain.mpq', 'texture.mpq', 'model.mpq')
 API_KEY_TABLES = ('DBFilesClient\\SpellDispelType.dbc',)
+CONTROL_GLOBALS = ('DELETE_ITEM_CONFIRM_STRING',)
 
 
 def digest(data):
@@ -110,6 +111,7 @@ def _dbc(raw, meta):
 
 
 def _globals(raw, assignments):
+    assert not any(key in assignments for key in CONTROL_GLOBALS)
     matched = 0
 
     def replace(match):
@@ -185,6 +187,8 @@ def apply(data_dir, templatePath, assetDbPath, outputPath):
     for name in API_KEY_TABLES:
         if name.casefold() in dictionary_names:
             raise ValueError('Internal API key table must remain original: ' + name)
+    if any(key in database['global_assignments'] for key in CONTROL_GLOBALS):
+        raise ValueError('Confirmation control tokens must remain original')
     output = pathlib.Path(outputPath)
     if output.exists():
         raise ValueError('Overlay output already exists')
@@ -195,6 +199,13 @@ def apply(data_dir, templatePath, assetDbPath, outputPath):
         for name in API_KEY_TABLES:
             if template.get_hash_table_entry(name) is not None:
                 raise ValueError('Asset template overrides an internal API key table: ' + name)
+        global_bytes = template.read_file('Interface\\FrameXML\\GlobalStrings.lua')
+        global_values = {match.group(1).decode('ascii'): match.group(2).decode('utf-8')
+            for match in ASSIGNMENT.finditer(global_bytes)}
+        for key in CONTROL_GLOBALS:
+            expected = database.get('protected_global_literals', {}).get(key)
+            if not expected or global_values.get(key) != expected:
+                raise ValueError('Asset template changes a confirmation control token: ' + key)
         current = {}
         skipped = {}
         for name in database['source_files']:

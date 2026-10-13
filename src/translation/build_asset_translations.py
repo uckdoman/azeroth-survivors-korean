@@ -8,7 +8,7 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT.parent / 'analysis-deps'))
 import mpyq
-from asset_overlay import API_KEY_TABLES
+from asset_overlay import API_KEY_TABLES, CONTROL_GLOBALS
 
 ASSIGNMENT = re.compile(rb'''(?m)^([A-Z_][A-Z0-9_]*)[ \t]*=[ \t]*("(?:\\.|[^"\\\r\n])*"|'(?:\\.|[^'\\\r\n])*')''')
 
@@ -108,9 +108,11 @@ def build():
                             values[key] = literal
                         return {key: value for key, value in values.items() if key not in ambiguous}
                     english_values, korean_values = assignments(original), assignments(korean_data)
+                    database['protected_global_literals'] = {key: english_values[key] for key in CONTROL_GLOBALS}
+                    assert all(korean_values[key] == english_values[key] for key in CONTROL_GLOBALS)
                     database['global_assignments'] = {
                         key: dict(english_literal=english, korean_literal=korean_values[key])
-                        for key, english in english_values.items() if key in korean_values and english != korean_values[key]
+                        for key, english in english_values.items() if key not in CONTROL_GLOBALS and key in korean_values and english != korean_values[key]
                     }
         output = ROOT / 'asset_translations.json'
         output.write_text(json.dumps(database, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
