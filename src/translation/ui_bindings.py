@@ -54,7 +54,25 @@ def apply_bindings(source, data, pe, store, bindings):
             gate(check['address'], check['before_hex'])
         raw = row['korean'].encode('utf-8')
         kind = row['kind']
-        if kind in ('borrowed', 'same_byte_span'):
+        if kind == 'owned_memcpy':
+            old = row['english'].encode('utf-8')
+            assert raw and len(raw) < 0x80000000
+            assert {'allocation', 'capacity', 'length', 'copy_length', 'oom'} == {f['role'] for f in row['size_fields']}
+            address = row['pointer_address']
+            at = gate(address, row['pointer_before_hex'])
+            assert bytes.fromhex(row['pointer_before_hex'])[:3] == b'\x48\x8d\x15'
+            assert len(bytes.fromhex(row['pointer_before_hex'])) == 7
+            old_target = address + 7 + struct.unpack_from('<i', source, at + 3)[0]
+            text_at = offset(old_target)
+            assert source[text_at:text_at + len(old)] == old
+            for field in row['size_fields']:
+                before = bytes.fromhex(field['before_hex'])
+                start, size = field['immediate_offset'], field['immediate_size']
+                assert int.from_bytes(before[start:start + size], 'little') == len(old)
+                immediate(field, len(raw))
+            assert data[at + 3:at + 7] == source[at + 3:at + 7]
+            data[at + 3:at + 7] = struct.pack('<i', store(raw) - (address + 7))
+        elif kind in ('borrowed', 'same_byte_span'):
             address = row['pointer_address']
             at = gate(address, row['pointer_before_hex'])
             assert len(bytes.fromhex(row['pointer_before_hex'])) == 7

@@ -12,7 +12,7 @@ using System.Web.Script.Serialization;
 using System.Windows.Forms;
 
 #if !INSTALLER_BUILD
-[assembly: AssemblyVersion("0.71.4.5")]
+[assembly: AssemblyVersion("0.71.4.6")]
 #endif
 
 internal sealed class ReleaseInfo

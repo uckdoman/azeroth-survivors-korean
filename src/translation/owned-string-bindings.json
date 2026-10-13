@@ -1,0 +1,488 @@
+{
+  "sources": {
+    "bc6649e91f270bc424f8120955aa1de5a7f31b3ea909588ae34545d26928c548": [
+      {
+        "kind": "owned_memcpy",
+        "english": "Your progress (heroes, the zones each class has opened, gear, talents and the codex) as a file: to keep a copy, or to carry it to another computer or browser.",
+        "korean": "영웅, 직업별 개방 지역, 장비, 특성, 도감 진행 상황을 파일로 내보냅니다. 백업하거나 다른 컴퓨터 또는 브라우저로 옮길 수 있습니다.",
+        "pointer_before_hex": "488d15609b6b05",
+        "pointer_address": 5370328437,
+        "size_fields": [
+          {
+            "role": "allocation",
+            "address": 5370328410,
+            "before_hex": "b99e000000",
+            "immediate_offset": 1,
+            "immediate_size": 4
+          },
+          {
+            "role": "copy_length",
+            "address": 5370328444,
+            "before_hex": "41b89e000000",
+            "immediate_offset": 2,
+            "immediate_size": 4
+          },
+          {
+            "role": "capacity",
+            "address": 5370328572,
+            "before_hex": "48c785800100009e000000",
+            "immediate_offset": 7,
+            "immediate_size": 4
+          },
+          {
+            "role": "length",
+            "address": 5370328590,
+            "before_hex": "48c785900100009e000000",
+            "immediate_offset": 7,
+            "immediate_size": 4
+          },
+          {
+            "role": "oom",
+            "address": 5370332830,
+            "before_hex": "ba9e000000",
+            "immediate_offset": 1,
+            "immediate_size": 4
+          }
+        ],
+        "guards": [
+          {
+            "address": 5370328410,
+            "before_hex": "b99e000000ba01000000e8576ce7ff4885c00f84271100004989c6488d15609b6b0541b89e0000004889c1e8c1625005"
+          },
+          {
+            "address": 5370328572,
+            "before_hex": "48c785800100009e0000004c89b58801000048c785900100009e000000"
+          },
+          {
+            "address": 5370332825,
+            "before_hex": "b901000000ba9e000000e8933369050f0b"
+          },
+          {
+            "address": 5370328772,
+            "before_hex": "4c8d85780100004c89e94889da4d89f1e857140900"
+          }
+        ]
+      },
+      {
+        "kind": "owned_memcpy",
+        "english": "Every ring, trinket and amulet a run has offered you, on any hero. The ones still in shadow have yet to come up: battleground caches, elites and guardians offer them.",
+        "korean": "모든 영웅으로 모험을 진행하며 획득할 수 있는 반지, 장신구, 목걸이를 확인합니다. 아직 발견하지 못한 장비는 전장 보관함, 정예 적, 수호자를 통해 획득할 수 있습니다.",
+        "pointer_before_hex": "488d1503da6205",
+        "pointer_address": 5371143982,
+        "size_fields": [
+          {
+            "role": "allocation",
+            "address": 5371143955,
+            "before_hex": "b9a6000000",
+            "immediate_offset": 1,
+            "immediate_size": 4
+          },
+          {
+            "role": "copy_length",
+            "address": 5371143989,
+            "before_hex": "41b8a6000000",
+            "immediate_offset": 2,
+            "immediate_size": 4
+          },
+          {
+            "role": "capacity",
+            "address": 5371144574,
+            "before_hex": "48c78548040000a6000000",
+            "immediate_offset": 7,
+            "immediate_size": 4
+          },
+          {
+            "role": "length",
+            "address": 5371144592,
+            "before_hex": "48c78558040000a6000000",
+            "immediate_offset": 7,
+            "immediate_size": 4
+          },
+          {
+            "role": "oom",
+            "address": 5371151097,
+            "before_hex": "baa6000000",
+            "immediate_offset": 1,
+            "immediate_size": 4
+          }
+        ],
+        "guards": [
+          {
+            "address": 5371143955,
+            "before_hex": "b9a6000000ba01000000e89efadaff4885c00f84c91b00004889c6488d1503da620541b8a60000004889c1e808f14305"
+          },
+          {
+            "address": 5371144574,
+            "before_hex": "48c78548040000a60000004889b55004000048c78558040000a6000000"
+          },
+          {
+            "address": 5371151092,
+            "before_hex": "b901000000baa6000000e838b75c050f0b"
+          },
+          {
+            "address": 5371144795,
+            "before_hex": "4c8d8540040000488d9560030000e8c2a0fcff"
+          }
+        ]
+      },
+      {
+        "kind": "owned_memcpy",
+        "english": "Pick a piece in the collection or the drop tables to see what it adds and which bosses drop it, or a slot on the left to choose its look.",
+        "korean": "수집품이나 획득 정보에서 장비를 선택하면 효과와 획득 가능한 우두머리를 확인할 수 있습니다. 왼쪽의 장비 칸을 선택하면 외형을 고를 수 있습니다.",
+        "pointer_before_hex": "488d1596e66105",
+        "pointer_address": 5371206893,
+        "size_fields": [
+          {
+            "role": "allocation",
+            "address": 5371206866,
+            "before_hex": "b989000000",
+            "immediate_offset": 1,
+            "immediate_size": 4
+          },
+          {
+            "role": "capacity",
+            "address": 5371206990,
+            "before_hex": "48c7455089000000",
+            "immediate_offset": 4,
+            "immediate_size": 4
+          },
+          {
+            "role": "length",
+            "address": 5371207002,
+            "before_hex": "48c7456089000000",
+            "immediate_offset": 4,
+            "immediate_size": 4
+          },
+          {
+            "role": "copy_length",
+            "address": 5371206900,
+            "before_hex": "41b889000000",
+            "immediate_offset": 2,
+            "immediate_size": 4
+          },
+          {
+            "role": "oom",
+            "address": 5371207377,
+            "before_hex": "ba89000000",
+            "immediate_offset": 1,
+            "immediate_size": 4
+          }
+        ],
+        "guards": [
+          {
+            "address": 5371206866,
+            "before_hex": "b989000000ba01000000e8df04daff4885c00f84e20100004989c4488d1596e6610541b8890000004889c1e849fb4205"
+          },
+          {
+            "address": 5371206990,
+            "before_hex": "48c74550890000004c89655848c7456089000000"
+          },
+          {
+            "address": 5371207372,
+            "before_hex": "b901000000ba89000000e860db5b05"
+          }
+        ]
+      },
+      {
+        "kind": "owned_memcpy",
+        "english": "Companions follow every hero of every class and fetch coins and experience wisps for you. Instincts go one to a companion, the first bought to the first.",
+        "korean": "동료는 모든 직업의 모든 영웅을 따라다니며 동전과 경험치 위습을 가져옵니다. 본능은 동료마다 하나씩 부여되며, 첫 번째로 구매한 본능이 첫 번째 동료에게 적용됩니다.",
+        "pointer_before_hex": "488d155be75e05",
+        "pointer_address": 5371405127,
+        "size_fields": [
+          {
+            "role": "allocation",
+            "address": 5371405100,
+            "before_hex": "b999000000",
+            "immediate_offset": 1,
+            "immediate_size": 4
+          },
+          {
+            "role": "capacity",
+            "address": 5371405824,
+            "before_hex": "48c785c001000099000000",
+            "immediate_offset": 7,
+            "immediate_size": 4
+          },
+          {
+            "role": "length",
+            "address": 5371405842,
+            "before_hex": "48c785d001000099000000",
+            "immediate_offset": 7,
+            "immediate_size": 4
+          },
+          {
+            "role": "copy_length",
+            "address": 5371405134,
+            "before_hex": "41b899000000",
+            "immediate_offset": 2,
+            "immediate_size": 4
+          },
+          {
+            "role": "oom",
+            "address": 5371406778,
+            "before_hex": "ba99000000",
+            "immediate_offset": 1,
+            "immediate_size": 4
+          }
+        ],
+        "guards": [
+          {
+            "address": 5371405100,
+            "before_hex": "b999000000ba01000000e885fed6ff4885c00f84710600004989c4488d155be75e0541b8990000004889c1e8eff43f05"
+          },
+          {
+            "address": 5371405824,
+            "before_hex": "48c785c0010000990000004c89a5c801000048c785d001000099000000"
+          },
+          {
+            "address": 5371406773,
+            "before_hex": "b901000000ba99000000e877d05805"
+          }
+        ]
+      }
+    ],
+    "f497c0589920e2fdd8c84d89b6602592bd7c609dccd55b39ea27578cc10f495a": [
+      {
+        "kind": "owned_memcpy",
+        "english": "Your progress (heroes, the zones each class has opened, gear, talents and the codex) as a file: to keep a copy, or to carry it to another computer or browser.",
+        "korean": "영웅, 직업별 개방 지역, 장비, 특성, 도감 진행 상황을 파일로 내보냅니다. 백업하거나 다른 컴퓨터 또는 브라우저로 옮길 수 있습니다.",
+        "pointer_before_hex": "488d15f0495505",
+        "pointer_address": 5371987509,
+        "size_fields": [
+          {
+            "role": "allocation",
+            "address": 5371987482,
+            "before_hex": "b99e000000",
+            "immediate_offset": 1,
+            "immediate_size": 4
+          },
+          {
+            "role": "copy_length",
+            "address": 5371987516,
+            "before_hex": "41b89e000000",
+            "immediate_offset": 2,
+            "immediate_size": 4
+          },
+          {
+            "role": "capacity",
+            "address": 5371987644,
+            "before_hex": "48c785800100009e000000",
+            "immediate_offset": 7,
+            "immediate_size": 4
+          },
+          {
+            "role": "length",
+            "address": 5371987662,
+            "before_hex": "48c785900100009e000000",
+            "immediate_offset": 7,
+            "immediate_size": 4
+          },
+          {
+            "role": "oom",
+            "address": 5371991902,
+            "before_hex": "ba9e000000",
+            "immediate_offset": 1,
+            "immediate_size": 4
+          }
+        ],
+        "guards": [
+          {
+            "address": 5371987482,
+            "before_hex": "b99e000000ba01000000e8971bceff4885c00f84271100004989c6488d15f049550541b89e0000004889c1e8c1a83605"
+          },
+          {
+            "address": 5371987644,
+            "before_hex": "48c785800100009e0000004c89b58801000048c785900100009e000000"
+          },
+          {
+            "address": 5371991897,
+            "before_hex": "b901000000ba9e000000e803794f050f0b"
+          },
+          {
+            "address": 5371987844,
+            "before_hex": "4c8d85780100004c89e94889da4d89f1e8d717e7ff"
+          }
+        ]
+      },
+      {
+        "kind": "owned_memcpy",
+        "english": "Every ring, trinket and amulet a run has offered you, on any hero. The ones still in shadow have yet to come up: battleground caches, elites and guardians offer them.",
+        "korean": "모든 영웅으로 모험을 진행하며 획득할 수 있는 반지, 장신구, 목걸이를 확인합니다. 아직 발견하지 못한 장비는 전장 보관함, 정예 적, 수호자를 통해 획득할 수 있습니다.",
+        "pointer_before_hex": "488d15b9ae6a05",
+        "pointer_address": 5370521448,
+        "size_fields": [
+          {
+            "role": "allocation",
+            "address": 5370521421,
+            "before_hex": "b9a6000000",
+            "immediate_offset": 1,
+            "immediate_size": 4
+          },
+          {
+            "role": "copy_length",
+            "address": 5370521455,
+            "before_hex": "41b8a6000000",
+            "immediate_offset": 2,
+            "immediate_size": 4
+          },
+          {
+            "role": "capacity",
+            "address": 5370522046,
+            "before_hex": "48c78548040000a6000000",
+            "immediate_offset": 7,
+            "immediate_size": 4
+          },
+          {
+            "role": "length",
+            "address": 5370522064,
+            "before_hex": "48c78558040000a6000000",
+            "immediate_offset": 7,
+            "immediate_size": 4
+          },
+          {
+            "role": "oom",
+            "address": 5370528569,
+            "before_hex": "baa6000000",
+            "immediate_offset": 1,
+            "immediate_size": 4
+          }
+        ],
+        "guards": [
+          {
+            "address": 5370521421,
+            "before_hex": "b9a6000000ba01000000e8647ae4ff4885c00f84cf1b00004889c6488d15b9ae6a0541b8a60000004889c1e88e074d05"
+          },
+          {
+            "address": 5370522046,
+            "before_hex": "48c78548040000a60000004889b55004000048c78558040000a6000000"
+          },
+          {
+            "address": 5370528564,
+            "before_hex": "b901000000baa6000000e828cd65050f0b"
+          },
+          {
+            "address": 5370522267,
+            "before_hex": "4c8d8540040000488d9560030000e8c274fdff"
+          }
+        ]
+      },
+      {
+        "kind": "owned_memcpy",
+        "english": "Pick a piece in the collection or the drop tables to see what it adds and which bosses drop it, or a slot on the left to choose its look.",
+        "korean": "수집품이나 획득 정보에서 장비를 선택하면 효과와 획득 가능한 우두머리를 확인할 수 있습니다. 왼쪽의 장비 칸을 선택하면 외형을 고를 수 있습니다.",
+        "pointer_before_hex": "488d153bbb6905",
+        "pointer_address": 5370584376,
+        "size_fields": [
+          {
+            "role": "allocation",
+            "address": 5370584349,
+            "before_hex": "b989000000",
+            "immediate_offset": 1,
+            "immediate_size": 4
+          },
+          {
+            "role": "capacity",
+            "address": 5370584473,
+            "before_hex": "48c7455089000000",
+            "immediate_offset": 4,
+            "immediate_size": 4
+          },
+          {
+            "role": "length",
+            "address": 5370584485,
+            "before_hex": "48c7456089000000",
+            "immediate_offset": 4,
+            "immediate_size": 4
+          },
+          {
+            "role": "copy_length",
+            "address": 5370584383,
+            "before_hex": "41b889000000",
+            "immediate_offset": 2,
+            "immediate_size": 4
+          },
+          {
+            "role": "oom",
+            "address": 5370584860,
+            "before_hex": "ba89000000",
+            "immediate_offset": 1,
+            "immediate_size": 4
+          }
+        ],
+        "guards": [
+          {
+            "address": 5370584349,
+            "before_hex": "b989000000ba01000000e89484e3ff4885c00f84e20100004989c4488d153bbb690541b8890000004889c1e8be114c05"
+          },
+          {
+            "address": 5370584473,
+            "before_hex": "48c74550890000004c89655848c7456089000000"
+          },
+          {
+            "address": 5370584855,
+            "before_hex": "b901000000ba89000000e845f16405"
+          }
+        ]
+      },
+      {
+        "kind": "owned_memcpy",
+        "english": "Companions follow every hero of every class and fetch coins and experience wisps for you. Instincts go one to a companion, the first bought to the first.",
+        "korean": "동료는 모든 직업의 모든 영웅을 따라다니며 동전과 경험치 위습을 가져옵니다. 본능은 동료마다 하나씩 부여되며, 첫 번째로 구매한 본능이 첫 번째 동료에게 적용됩니다.",
+        "pointer_before_hex": "488d15a3b86605",
+        "pointer_address": 5370783471,
+        "size_fields": [
+          {
+            "role": "allocation",
+            "address": 5370783444,
+            "before_hex": "b999000000",
+            "immediate_offset": 1,
+            "immediate_size": 4
+          },
+          {
+            "role": "capacity",
+            "address": 5370784160,
+            "before_hex": "48c785c001000099000000",
+            "immediate_offset": 7,
+            "immediate_size": 4
+          },
+          {
+            "role": "length",
+            "address": 5370784178,
+            "before_hex": "48c785d001000099000000",
+            "immediate_offset": 7,
+            "immediate_size": 4
+          },
+          {
+            "role": "copy_length",
+            "address": 5370783478,
+            "before_hex": "41b899000000",
+            "immediate_offset": 2,
+            "immediate_size": 4
+          },
+          {
+            "role": "oom",
+            "address": 5370785114,
+            "before_hex": "ba99000000",
+            "immediate_offset": 1,
+            "immediate_size": 4
+          }
+        ],
+        "guards": [
+          {
+            "address": 5370783444,
+            "before_hex": "b999000000ba01000000e8dd7ae0ff4885c00f84690600004989c4488d15a3b8660541b8990000004889c1e807084905"
+          },
+          {
+            "address": 5370784160,
+            "before_hex": "48c785c0010000990000004c89a5c801000048c785d001000099000000"
+          },
+          {
+            "address": 5370785109,
+            "before_hex": "b901000000ba99000000e807e36105"
+          }
+        ]
+      }
+    ]
+  }
+}

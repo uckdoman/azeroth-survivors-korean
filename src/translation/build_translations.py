@@ -121,10 +121,29 @@ for patch in profile_patches:
     imm = length_at + ins.imm_offset
     native[imm:imm + ins.imm_size] = source[imm:imm + ins.imm_size]
     skipped_owned.append({'address': hex(patch['address']), 'english': patch['english']})
-from ui_bindings import apply_short_string_guards
+from ui_bindings import apply_short_string_guards, apply_bindings
 applied_short_guards = apply_short_string_guards(source, native, pe, short_guards)
+owned_config = read(ROOT / 'owned-string-bindings.json')
+owned_bindings = owned_config['sources'].get(sha(source), [])
+native_korean = next(s for s in native_pe.sections if s.Name.rstrip(b'\0') == b'.korean')
+
+def existing_payload(raw):
+    at = native.find(raw + b'\0', native_korean.PointerToRawData,
+        native_korean.PointerToRawData + native_korean.SizeOfRawData)
+    assert at >= native_korean.PointerToRawData, 'Missing audited Korean payload'
+    return base + native_pe.get_rva_from_offset(at)
+
+applied_owned = apply_bindings(source, native, pe, existing_payload, owned_bindings)
+owned_addresses = {hex(row['pointer_address']) for row in owned_bindings}
+skipped_owned = [row for row in skipped_owned if row['address'] not in owned_addresses]
 expected_output = sha(native)
 fields = []
+for row in owned_bindings:
+    at = pe.get_offset_from_rva(row['pointer_address'] - base)
+    fields.append((at + 3, at + 7))
+    for field in row['size_fields']:
+        at = pe.get_offset_from_rva(field['address'] - base) + field['immediate_offset']
+        fields.append((at, at + field['immediate_size']))
 for guard in short_guards:
     at = pe.get_offset_from_rva(guard['address'] - base)
     fields.append((at, at + len(bytes.fromhex(guard['before_hex']))))
@@ -169,11 +188,13 @@ profile = {'delta': delta, 'append_base64': base64.b64encode(native[len(source):
            'matched_counts': matched_counts, 'expected_output_sha256': expected_output,
            'skipped_owned_strings': skipped_owned, 'owned_copy_safe': True,
            'skipped_iterator_bounds': skipped_iterator_bounds, 'iterator_bounds_safe': True,
-           'short_strings_safe': True, 'applied_short_string_guards': applied_short_guards}
+           'short_strings_safe': True, 'applied_short_string_guards': applied_short_guards,
+           'applied_owned_strings': applied_owned}
 database = {'schema': 1, 'translations': dict(sorted(entries.items())), 'protected': sorted(protected),
             'max_text_bytes': max(len(english.encode('utf-8')) for english in entries), 'scripts': scripts,
             'profiles': {sha(source): profile}, 'short_string_guards': short_guard_config['sources'],
-            'short_string_sensitive_metadata': short_guard_config['sensitive_metadata']}
+            'short_string_sensitive_metadata': short_guard_config['sensitive_metadata'],
+            'owned_string_bindings': owned_config['sources']}
 ui_bindings = ROOT / 'ui-bindings.json'
 if ui_bindings.exists():
     bindings = read(ui_bindings)

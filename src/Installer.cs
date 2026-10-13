@@ -11,13 +11,13 @@ using System.Windows.Forms;
 
 [assembly: AssemblyTitle("Azeroth Survivors 한국어 패치")]
 [assembly: AssemblyDescription("게임 폴더에 넣고 실행하는 한국어 패치 설치기")]
-[assembly: AssemblyVersion("0.71.4.5")]
+[assembly: AssemblyVersion("0.71.4.6")]
 
 internal static class Installer
 {
     const string OverlayHash = "aba0e46a60c39064d477fe9df7ee8c5d84b06bbd8b648c126ae2dc2c362d788a";
     const string Title = "아제로스 서바이버 한글 패치";
-    const string PatchVersion = "0.71.4.5";
+    const string PatchVersion = "0.71.4.6";
     const string RetryMessage = "설치하지 못했습니다. 게임을 종료하고 다시 실행해 주세요.";
     static readonly string[] PreviousOverlayHashes = {
         "60268bcad6a3817a621a47e6f745e3a353fadf0ad85ec7f0a92b09dda1eb452f",

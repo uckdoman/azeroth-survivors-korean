@@ -333,7 +333,8 @@ def translate(input_path, output_path, db_path):
                   'native_update_modified': False, 'unknown_text_translated': False,
                   'skipped_owned_strings': profile.get('skipped_owned_strings', []),
                   'skipped_iterator_bounds': profile.get('skipped_iterator_bounds', []),
-                  'applied_short_string_guards': profile.get('applied_short_string_guards', [])}
+                  'applied_short_string_guards': profile.get('applied_short_string_guards', []),
+                  'applied_owned_strings': profile.get('applied_owned_strings', [])}
         pathlib.Path(str(output_path) + '.translation.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
         return report
     if profile:
@@ -450,7 +451,12 @@ def translate(input_path, output_path, db_path):
     from ui_bindings import apply_bindings, apply_short_string_guards
     applied_short_guards = apply_short_string_guards(source, data, pe, short_guards)
     applied_ui = apply_bindings(source, data, pe, store, database.get('ui_bindings', {}).get(source_hash, []))
+    owned_bindings = database.get('owned_string_bindings', {}).get(source_hash, [])
+    applied_owned = apply_bindings(source, data, pe, store, owned_bindings)
+    owned_addresses = {hex(row['pointer_address']) for row in owned_bindings}
+    skipped_owned = [row for row in skipped_owned if row['address'] not in owned_addresses]
     counts['inline'] += len(applied_ui)
+    counts['direct'] += len(applied_owned)
 
     for script in database['scripts']:
         original = script['original'].encode('utf-8')
@@ -494,7 +500,8 @@ def translate(input_path, output_path, db_path):
               'native_update_modified': False, 'unknown_text_translated': False,
               'skipped_owned_strings': skipped_owned, 'skipped_iterator_bounds': skipped_iterator_bounds,
               'applied_ui_bindings': applied_ui,
-              'applied_short_string_guards': applied_short_guards}
+              'applied_short_string_guards': applied_short_guards,
+              'applied_owned_strings': applied_owned}
     pathlib.Path(str(output_path) + '.translation.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
     return report
 
