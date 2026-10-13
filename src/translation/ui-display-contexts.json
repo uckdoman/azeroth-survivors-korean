@@ -2715,6 +2715,108 @@
     "Imported {0}: your progress is now the one it holds.": [
       "f8c263fb20eb5af4173c907b5bf2f03a41949837a081daf2b5ebd7b778d9dab7",
       "f8c263fb20eb5af4173c907b5bf2f03a41949837a081daf2b5ebd7b778d9dab7"
+    ],
+    "You receive loot: {0}{1}": [
+      "ec54adc7e352c2f7dfd808d159e1fc77c9ccc8f9b12d3c61d9cfd0423e448592",
+      "ec54adc7e352c2f7dfd808d159e1fc77c9ccc8f9b12d3c61d9cfd0423e448592"
+    ],
+    "{0} the {1} {2} enters {3}. Move to begin.": [
+      "497e9aa64cf77e5463612308855cf41797da986a2522ed45c623df9a522e4501",
+      "497e9aa64cf77e5463612308855cf41797da986a2522ed45c623df9a522e4501"
+    ],
+    "|cffff4040{0} is locked: a {1} opens it by defeating {2} in {3}.|r": [
+      "497e9aa64cf77e5463612308855cf41797da986a2522ed45c623df9a522e4501",
+      "497e9aa64cf77e5463612308855cf41797da986a2522ed45c623df9a522e4501"
+    ],
+    "Defeat {0} in {1} with any class.": [
+      "c5cab71708ea0d83b486a0082068122279e22820e80c8ea3420ad0bb2222d4a7",
+      "c5cab71708ea0d83b486a0082068122279e22820e80c8ea3420ad0bb2222d4a7"
+    ],
+    "Champion of {0}": [
+      "d4eb0b2d3ff48ac7a7bf6a1d9586bc00e4d3fcc48640903967ce582241cf0bba",
+      "d4eb0b2d3ff48ac7a7bf6a1d9586bc00e4d3fcc48640903967ce582241cf0bba"
+    ],
+    "Defeat {0} in {1} with all nine classes.": [
+      "d4eb0b2d3ff48ac7a7bf6a1d9586bc00e4d3fcc48640903967ce582241cf0bba",
+      "d4eb0b2d3ff48ac7a7bf6a1d9586bc00e4d3fcc48640903967ce582241cf0bba"
+    ],
+    "{0} Victorious": [
+      "c955b644698909b393d84d50c51931ca651a0db30c7166e70f4df045ae293b55",
+      "c955b644698909b393d84d50c51931ca651a0db30c7166e70f4df045ae293b55"
+    ],
+    "{0} of the Scarab Wall": [
+      "c955b644698909b393d84d50c51931ca651a0db30c7166e70f4df045ae293b55",
+      "c955b644698909b393d84d50c51931ca651a0db30c7166e70f4df045ae293b55"
+    ],
+    "Earn all {0} talent points with one class.": [
+      "11ebcbf3bdd9f7587a17f6e36febd5126632b794e435e31b1ce0979437e6ec55",
+      "11ebcbf3bdd9f7587a17f6e36febd5126632b794e435e31b1ce0979437e6ec55"
+    ],
+    "Earn all {0} talent points with every class.": [
+      "442e1839c61a10eebfa539238f8cc601851dd19b0be0143530af4bce79db72d5",
+      "442e1839c61a10eebfa539238f8cc601851dd19b0be0143530af4bce79db72d5"
+    ],
+    "Collect {0} pieces of gear, of any class.": [
+      "0ca3ee96efe94dc9ab0f333c9546c13b0bbaa5d95dea0f4cfe3fae451f47ebd4",
+      "0ca3ee96efe94dc9ab0f333c9546c13b0bbaa5d95dea0f4cfe3fae451f47ebd4"
+    ],
+    "-{0}% cooldown": [
+      "193da0e15895b8cca77a69d6c3c113a4907aa67fda934a89f9d112b843ab77d1",
+      "a442fbeff650761b0e3efb9f5a9309254d53fe5284783856f85ccb95eee6b6e4",
+      "a442fbeff650761b0e3efb9f5a9309254d53fe5284783856f85ccb95eee6b6e4",
+      "193da0e15895b8cca77a69d6c3c113a4907aa67fda934a89f9d112b843ab77d1"
+    ],
+    "+{0} target{1}": [
+      "56354b6907d27fd86de7ed0c9f9dc976c12fe154e43e886a7ed069d07e44cb12",
+      "fcb0d237d025a7d0e98e67602f52a76a1006c8c2e285f5f67cdfa6fd63e9dc44",
+      "56354b6907d27fd86de7ed0c9f9dc976c12fe154e43e886a7ed069d07e44cb12",
+      "fcb0d237d025a7d0e98e67602f52a76a1006c8c2e285f5f67cdfa6fd63e9dc44"
+    ],
+    "+{0}% area": [
+      "2cc50c6ab0f3b739a29c39d74a4a9cc116048cfd443ad44a72b6617a5cafc388",
+      "a442fbeff650761b0e3efb9f5a9309254d53fe5284783856f85ccb95eee6b6e4",
+      "2cc50c6ab0f3b739a29c39d74a4a9cc116048cfd443ad44a72b6617a5cafc388",
+      "a442fbeff650761b0e3efb9f5a9309254d53fe5284783856f85ccb95eee6b6e4"
+    ],
+    "+{0}% duration": [
+      "b0e1225a327a80f2e9003a9559ca4382188b9d4c27de49110d9b4a27ebaa7ded",
+      "b0e1225a327a80f2e9003a9559ca4382188b9d4c27de49110d9b4a27ebaa7ded"
+    ],
+    "{0}{1}% damage": [
+      "4cd730484358db6ce28e4d8afd374053798e2a839bb045d2595334ff3d970d9e",
+      "4cd730484358db6ce28e4d8afd374053798e2a839bb045d2595334ff3d970d9e"
+    ],
+    "+{0}% buff power": [
+      "d6188e62d220deac33dd2d9a0f93f59ba0bed886395892ee233127ffc58ed574",
+      "d6188e62d220deac33dd2d9a0f93f59ba0bed886395892ee233127ffc58ed574"
+    ],
+    "{0}% chance to crit for {1}% damage": [
+      "dc56fed54c162711829dd15b1021fcbd0c857bd35a566c841c24064ed198183b",
+      "dc56fed54c162711829dd15b1021fcbd0c857bd35a566c841c24064ed198183b"
+    ],
+    "Casts {0}, {1}% chance to cast {2}": [
+      "1a9a8bfe3e10f15d45b31171b55ee9ae66f6e02d4db9e40ae88aef36e3a2de3c",
+      "1a9a8bfe3e10f15d45b31171b55ee9ae66f6e02d4db9e40ae88aef36e3a2de3c"
+    ],
+    "{0}% chance to cast twice": [
+      "2e3c0528e8659f63a22d8a490bb97c3ba094edbf0830e3149c85a0d795f21d68",
+      "2e3c0528e8659f63a22d8a490bb97c3ba094edbf0830e3149c85a0d795f21d68"
+    ],
+    "Casts {0}": [
+      "2e3c0528e8659f63a22d8a490bb97c3ba094edbf0830e3149c85a0d795f21d68",
+      "2e3c0528e8659f63a22d8a490bb97c3ba094edbf0830e3149c85a0d795f21d68"
+    ],
+    "\n\n{0}Not learned yet: a level-up may offer it.{1}": [
+      "a2eef6bd3dd8e620c88b849070495c4b674fe12233ab6e0d2a663743acfb7d66",
+      "a2eef6bd3dd8e620c88b849070495c4b674fe12233ab6e0d2a663743acfb7d66"
+    ],
+    "\n\n{0}Racial: casts on its own.{1}": [
+      "a2eef6bd3dd8e620c88b849070495c4b674fe12233ab6e0d2a663743acfb7d66",
+      "a2eef6bd3dd8e620c88b849070495c4b674fe12233ab6e0d2a663743acfb7d66"
+    ],
+    "\n\n{0}A talent casts it on its own.{1}": [
+      "a2eef6bd3dd8e620c88b849070495c4b674fe12233ab6e0d2a663743acfb7d66",
+      "a2eef6bd3dd8e620c88b849070495c4b674fe12233ab6e0d2a663743acfb7d66"
     ]
   },
   "source_sha256": "bc6649e91f270bc424f8120955aa1de5a7f31b3ea909588ae34545d26928c548",
@@ -4905,6 +5007,81 @@
       ],
       "Imported {0}: your progress is now the one it holds.": [
         5370377376
+      ],
+      "You receive loot: {0}{1}": [
+        5456384141
+      ],
+      "{0} the {1} {2} enters {3}. Move to begin.": [
+        5456405383
+      ],
+      "|cffff4040{0} is locked: a {1} opens it by defeating {2} in {3}.|r": [
+        5456406498
+      ],
+      "Defeat {0} in {1} with any class.": [
+        5456647731
+      ],
+      "Champion of {0}": [
+        5456648382
+      ],
+      "Defeat {0} in {1} with all nine classes.": [
+        5456648616
+      ],
+      "{0} Victorious": [
+        5456649075
+      ],
+      "{0} of the Scarab Wall": [
+        5456649571
+      ],
+      "Earn all {0} talent points with one class.": [
+        5456650024
+      ],
+      "Earn all {0} talent points with every class.": [
+        5456650431
+      ],
+      "Collect {0} pieces of gear, of any class.": [
+        5456651255
+      ],
+      "-{0}% cooldown": [
+        5457170362,
+        5457171786
+      ],
+      "+{0} target{1}": [
+        5457170595,
+        5457172329
+      ],
+      "+{0}% area": [
+        5457170823,
+        5457172083
+      ],
+      "+{0}% duration": [
+        5457171069
+      ],
+      "{0}{1}% damage": [
+        5457171532
+      ],
+      "+{0}% buff power": [
+        5457172584
+      ],
+      "{0}% chance to crit for {1}% damage": [
+        5457173148
+      ],
+      "Casts {0}, {1}% chance to cast {2}": [
+        5457173604
+      ],
+      "{0}% chance to cast twice": [
+        5457173853
+      ],
+      "Casts {0}": [
+        5457173985
+      ],
+      "\n\n{0}Not learned yet: a level-up may offer it.{1}": [
+        5457174795
+      ],
+      "\n\n{0}Racial: casts on its own.{1}": [
+        5457174978
+      ],
+      "\n\n{0}A talent casts it on its own.{1}": [
+        5457175161
       ]
     }
   },
@@ -6892,6 +7069,81 @@
       },
       "Imported {0}: your progress is now the one it holds.": {
         "5370377376": "{0} 파일을 가져왔습니다. 진행 상황이 파일의 내용으로 바뀌었습니다."
+      },
+      "You receive loot: {0}{1}": {
+        "5456384141": "전리품 획득: {0}{1}"
+      },
+      "{0} the {1} {2} enters {3}. Move to begin.": {
+        "5456405383": "{0} {1} {2} 등장: {3}. 이동하여 시작하세요."
+      },
+      "|cffff4040{0} is locked: a {1} opens it by defeating {2} in {3}.|r": {
+        "5456406498": "|cffff4040{0} 잠김: {1}이(가) {2}을(를) {3}에서 처치하면 개방됩니다.|r"
+      },
+      "Defeat {0} in {1} with any class.": {
+        "5456647731": "{0}을 {1}에서 아무 직업으로 처치하세요."
+      },
+      "Champion of {0}": {
+        "5456648382": "{0}의 용사"
+      },
+      "Defeat {0} in {1} with all nine classes.": {
+        "5456648616": "{0}을 {1}에서 아홉 직업 모두로 처치하세요."
+      },
+      "{0} Victorious": {
+        "5456649075": "{0}의 승리"
+      },
+      "{0} of the Scarab Wall": {
+        "5456649571": "스카라베 성벽의 {0}"
+      },
+      "Earn all {0} talent points with one class.": {
+        "5456650024": "한 직업의 특성 점수 {0}점을 모두 획득하세요."
+      },
+      "Earn all {0} talent points with every class.": {
+        "5456650431": "모든 직업의 특성 점수 {0}점을 모두 획득하세요."
+      },
+      "Collect {0} pieces of gear, of any class.": {
+        "5456651255": "직업에 관계없이 장비 {0}개를 수집하세요."
+      },
+      "-{0}% cooldown": {
+        "5457170362": "재사용 대기시간 -{0}%",
+        "5457171786": "재사용 대기시간 -{0}%"
+      },
+      "+{0} target{1}": {
+        "5457170595": "대상 +{0}명",
+        "5457172329": "대상 +{0}명"
+      },
+      "+{0}% area": {
+        "5457170823": "+{0}% 범위",
+        "5457172083": "+{0}% 범위"
+      },
+      "+{0}% duration": {
+        "5457171069": "+{0}% 지속시간"
+      },
+      "{0}{1}% damage": {
+        "5457171532": "{0}{1}% 피해"
+      },
+      "+{0}% buff power": {
+        "5457172584": "+{0}% 강화 효과 위력"
+      },
+      "{0}% chance to crit for {1}% damage": {
+        "5457173148": "치명타 확률 {0}%, 치명타 피해 {1}%"
+      },
+      "Casts {0}, {1}% chance to cast {2}": {
+        "5457173604": "{0} 시전, {1}% 확률로 {2} 시전"
+      },
+      "{0}% chance to cast twice": {
+        "5457173853": "두 번 시전 확률 {0}%"
+      },
+      "Casts {0}": {
+        "5457173985": "{0} 시전"
+      },
+      "\n\n{0}Not learned yet: a level-up may offer it.{1}": {
+        "5457174795": "\n\n{0}아직 배우지 않았습니다. 레벨이 오르면 배울 기회가 생깁니다.{1}"
+      },
+      "\n\n{0}Racial: casts on its own.{1}": {
+        "5457174978": "\n\n{0}종족 능력: 자동으로 시전됩니다.{1}"
+      },
+      "\n\n{0}A talent casts it on its own.{1}": {
+        "5457175161": "\n\n{0}특성 효과로 자동 시전됩니다.{1}"
       }
     }
   }

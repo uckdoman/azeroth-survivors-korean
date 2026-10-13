@@ -17,7 +17,8 @@ from capstone.x86 import X86_OP_IMM, X86_OP_MEM, X86_OP_REG
 from rust_fmt_template import parse_template, encode_literal
 
 FORMAT_DISPLAY_OVERRIDES = {'{0} rank {1}': '{0}',
-    'Requires {0} rank{1} in {2}': '{0}단계 필요: {2}'}
+    'Requires {0} rank{1} in {2}': '{0}단계 필요: {2}',
+    '+{0} target{1}': '대상 +{0}명'}
 
 
 def display_template_override(english, korean, pieces):
@@ -28,6 +29,10 @@ def display_template_override(english, korean, pieces):
     if english == '{0} rank {1}':
         assert placeholders == [b'\xc0', b'\xc0']
         return b'\xc0\0'
+    if english == '+{0} target{1}':
+        assert placeholders == [b'\xc0', b'\xc0']
+        # Korean counts need no English plural suffix; caller arguments stay intact.
+        return encode_literal('대상 +') + b'\xc0' + encode_literal('명') + b'\0'
     assert placeholders == [b'\xc0', b'\xc0', b'\xc0']
     # The unused English plural suffix stays in the caller's argument array.
     return b'\xc0' + encode_literal('단계 필요: ') + b'\xc8\x02\0\0'
