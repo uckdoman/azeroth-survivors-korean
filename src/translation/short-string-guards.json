@@ -1,0 +1,92 @@
+{
+  "sensitive_metadata": [
+    "Uncommon",
+    "Legendary"
+  ],
+  "sources": {
+    "bc6649e91f270bc424f8120955aa1de5a7f31b3ea909588ae34545d26928c548": [
+      {
+        "address": 5371192491,
+        "before_hex": "0f1f440000",
+        "scalar_address": 5371192547,
+        "minimum_string_bytes": 1,
+        "guards": [
+          {
+            "address": 5371192451,
+            "before_hex": "4c89f84883e0f831c9660f6f05dc955d05660f6f0de4955d05660f6f15ec955d054c8bb568060000"
+          },
+          {
+            "address": 5371192496,
+            "before_hex": "f3410f7e1c0c660f6fe3660ffce0660f6fec660fdee9660f74ec660fdfea660febeb66410fd62c0c4883c1084839c875cfeb7e31c04c8bb568060000eb59b901"
+          },
+          {
+            "address": 5371192547,
+            "before_hex": "31c04c8bb568060000eb59b9010000004889"
+          }
+        ]
+      },
+      {
+        "address": 5371149206,
+        "before_hex": "662e0f1f840000000000",
+        "scalar_address": 5371151078,
+        "minimum_string_bytes": 1,
+        "guards": [
+          {
+            "address": 5371149166,
+            "before_hex": "4889f84883e0f831c9660f6f05219c5e05660f6f0df93e5e05660f6f15013f5e05488b9d90060000"
+          },
+          {
+            "address": 5371149216,
+            "before_hex": "f3410f7e1c0f660f6fe3660ffce0660f6fec660fdee9660f74ec660fdfea660fefeb66410fd62c0f4883c1084839c875cfe94e080000c685a706000000488b95"
+          },
+          {
+            "address": 5371151078,
+            "before_hex": "31c0488b9d90060000e916010000b9010000"
+          }
+        ]
+      }
+    ],
+    "f497c0589920e2fdd8c84d89b6602592bd7c609dccd55b39ea27578cc10f495a": [
+      {
+        "address": 5370569963,
+        "before_hex": "0f1f440000",
+        "scalar_address": 5370570019,
+        "minimum_string_bytes": 1,
+        "guards": [
+          {
+            "address": 5370569923,
+            "before_hex": "4c89f84883e0f831c9660f6f05fc486605660f6f0d04496605660f6f150c4966054c8bb568060000"
+          },
+          {
+            "address": 5370569968,
+            "before_hex": "f3410f7e1c0c660f6fe3660ffce0660f6fec660fdee9660f74ec660fdfea660febeb66410fd62c0c4883c1084839c875cfeb7e31c04c8bb568060000eb59b901"
+          },
+          {
+            "address": 5370570019,
+            "before_hex": "31c04c8bb568060000eb59b9010000004889"
+          }
+        ]
+      },
+      {
+        "address": 5370526678,
+        "before_hex": "662e0f1f840000000000",
+        "scalar_address": 5370528550,
+        "minimum_string_bytes": 1,
+        "guards": [
+          {
+            "address": 5370526638,
+            "before_hex": "4889f84883e0f831c9660f6f05f1666a05660f6f0d19f26605660f6f1521f26605488b9d90060000"
+          },
+          {
+            "address": 5370526688,
+            "before_hex": "f3410f7e1c0f660f6fe3660ffce0660f6fec660fdee9660f74ec660fdfea660fefeb66410fd62c0f4883c1084839c875cfe94e080000c685a706000000488b95"
+          },
+          {
+            "address": 5370528550,
+            "before_hex": "31c0488b9d90060000e916010000b9010000"
+          }
+        ]
+      }
+    ]
+  }
+}

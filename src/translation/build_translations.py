@@ -86,6 +86,10 @@ if ui_values.exists() and ui_contexts.exists():
         entry['display_references'] = {kind: display['references'][kind].get(english, []) for kind in ('metadata', 'direct', 'format')}
         entry['display_reference_values'] = {kind: display['reference_values'][kind].get(english, {}) for kind in ('metadata', 'direct', 'format')}
 scripts = [{'original': row['original'], 'translated': row['translated']} for row in read(PREVIOUS / 'assets/injected-lua-rewrites.json')]
+short_guard_config = read(ROOT / 'short-string-guards.json')
+short_guards = short_guard_config['sources'].get(sha(source), [])
+assert short_guards
+assert all(entries[name]['korean'].encode('utf-8') for name in short_guard_config['sensitive_metadata'])
 native = bytearray((PREVIOUS / 'testgame/AzerothSurvivors_KO.exe').read_bytes().replace(b'https://patch.invalid', b'https://wow.aethus.pl'))
 native_pe = pefile.PE(data=bytes(native), fast_load=True)
 skipped_owned = []
@@ -117,8 +121,13 @@ for patch in profile_patches:
     imm = length_at + ins.imm_offset
     native[imm:imm + ins.imm_size] = source[imm:imm + ins.imm_size]
     skipped_owned.append({'address': hex(patch['address']), 'english': patch['english']})
+from ui_bindings import apply_short_string_guards
+applied_short_guards = apply_short_string_guards(source, native, pe, short_guards)
 expected_output = sha(native)
 fields = []
+for guard in short_guards:
+    at = pe.get_offset_from_rva(guard['address'] - base)
+    fields.append((at, at + len(bytes.fromhex(guard['before_hex']))))
 for patch in report['patches']:
     kind = patch['kind']
     if kind in ('str', 'lua'):
@@ -159,10 +168,12 @@ matched_counts['format'] -= len(skipped_iterator_bounds)
 profile = {'delta': delta, 'append_base64': base64.b64encode(native[len(source):]).decode(),
            'matched_counts': matched_counts, 'expected_output_sha256': expected_output,
            'skipped_owned_strings': skipped_owned, 'owned_copy_safe': True,
-           'skipped_iterator_bounds': skipped_iterator_bounds, 'iterator_bounds_safe': True}
+           'skipped_iterator_bounds': skipped_iterator_bounds, 'iterator_bounds_safe': True,
+           'short_strings_safe': True, 'applied_short_string_guards': applied_short_guards}
 database = {'schema': 1, 'translations': dict(sorted(entries.items())), 'protected': sorted(protected),
             'max_text_bytes': max(len(english.encode('utf-8')) for english in entries), 'scripts': scripts,
-            'profiles': {sha(source): profile}}
+            'profiles': {sha(source): profile}, 'short_string_guards': short_guard_config['sources'],
+            'short_string_sensitive_metadata': short_guard_config['sensitive_metadata']}
 ui_bindings = ROOT / 'ui-bindings.json'
 if ui_bindings.exists():
     bindings = read(ui_bindings)

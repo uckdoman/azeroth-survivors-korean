@@ -235,12 +235,14 @@ def translate(input_path, output_path, db_path):
     counts = {'metadata': 0, 'direct': 0, 'format': 0, 'scripts': 0, 'inline': 0}
     source_hash = sha(source)
     profile = database.get('profiles', {}).get(source_hash)
-    if profile and 'delta' in profile and not (profile.get('owned_copy_safe') and profile.get('iterator_bounds_safe')):
+    if profile and 'delta' in profile and not (profile.get('owned_copy_safe') and profile.get('iterator_bounds_safe') and profile.get('short_strings_safe')):
         profile = None
     known = database['translations']
     protected = set(database['protected'])
     skipped_owned = []
     skipped_iterator_bounds = []
+    short_guards = database.get('short_string_guards', {}).get(source_hash, [])
+    short_sensitive = set(database.get('short_string_sensitive_metadata', []))
     relocations = set()
     relocation_section = next((s for s in pe.sections if s.Name.rstrip(b'\0') == b'.reloc'), None)
     if relocation_section:
@@ -330,7 +332,8 @@ def translate(input_path, output_path, db_path):
                   'matched_counts': profile['matched_counts'], 'game_build_replaced': False,
                   'native_update_modified': False, 'unknown_text_translated': False,
                   'skipped_owned_strings': profile.get('skipped_owned_strings', []),
-                  'skipped_iterator_bounds': profile.get('skipped_iterator_bounds', [])}
+                  'skipped_iterator_bounds': profile.get('skipped_iterator_bounds', []),
+                  'applied_short_string_guards': profile.get('applied_short_string_guards', [])}
         pathlib.Path(str(output_path) + '.translation.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
         return report
     if profile:
@@ -379,6 +382,10 @@ def translate(input_path, output_path, db_path):
             row = known.get(english)
             if not row:
                 continue
+            if english in short_sensitive:
+                if not short_guards:
+                    continue
+                assert display_value(row, 'metadata', ref, source_hash).encode('utf-8'), 'Empty rarity name'
             if display_context_allowed(row, 'metadata', metadata_context(source, pe, ref), english in protected, source_hash, ref):
                 replace_metadata(ref, english, display_value(row, 'metadata', ref, source_hash))
         code = source[text.PointerToRawData:text.PointerToRawData + text.SizeOfRawData]
@@ -440,7 +447,8 @@ def translate(input_path, output_path, db_path):
                 else:
                     replace_format(address, english, display_value(row, 'format', address, source_hash))
 
-    from ui_bindings import apply_bindings
+    from ui_bindings import apply_bindings, apply_short_string_guards
+    applied_short_guards = apply_short_string_guards(source, data, pe, short_guards)
     applied_ui = apply_bindings(source, data, pe, store, database.get('ui_bindings', {}).get(source_hash, []))
     counts['inline'] += len(applied_ui)
 
@@ -485,7 +493,8 @@ def translate(input_path, output_path, db_path):
               'profile_matched': bool(profile), 'matched_counts': counts, 'game_build_replaced': False,
               'native_update_modified': False, 'unknown_text_translated': False,
               'skipped_owned_strings': skipped_owned, 'skipped_iterator_bounds': skipped_iterator_bounds,
-              'applied_ui_bindings': applied_ui}
+              'applied_ui_bindings': applied_ui,
+              'applied_short_string_guards': applied_short_guards}
     pathlib.Path(str(output_path) + '.translation.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
     return report
 

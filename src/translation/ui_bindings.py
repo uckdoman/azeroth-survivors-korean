@@ -2,6 +2,35 @@
 import struct
 
 
+def apply_short_string_guards(source, data, pe, guards):
+    """Use the existing byte loop when a compiler-specialized SIMD prefix is empty."""
+    base = pe.OPTIONAL_HEADER.ImageBase
+    applied = []
+    for row in guards:
+        for check in row['guards']:
+            at = pe.get_offset_from_rva(check['address'] - base)
+            expected = bytes.fromhex(check['before_hex'])
+            assert source[at:at + len(expected)] == expected
+        address = row['address']
+        at = pe.get_offset_from_rva(address - base)
+        before = bytes.fromhex(row['before_hex'])
+        assert source[at:at + len(before)] == before
+        assert data[at:at + len(before)] == before
+        target = row['scalar_address']
+        if len(before) == 5:
+            displacement = target - (address + 5)
+            assert -128 <= displacement <= 127
+            replacement = b'\x48\x85\xc0\x74' + struct.pack('b', displacement)
+        else:
+            assert len(before) >= 9
+            replacement = b'\x48\x85\xc0\x0f\x84' + struct.pack('<i', target - (address + 9))
+            replacement += b'\x90' * (len(before) - len(replacement))
+        assert len(replacement) == len(before)
+        data[at:at + len(before)] = replacement
+        applied.append({'address': hex(address), 'scalar_address': hex(target)})
+    return applied
+
+
 def apply_bindings(source, data, pe, store, bindings):
     base = pe.OPTIONAL_HEADER.ImageBase
     applied = []
