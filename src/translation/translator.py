@@ -39,6 +39,9 @@ def display_template_override(english, korean, pieces):
 
 
 def display_context_allowed(row, kind, signature, protected, source_hash, reference):
+    build = row.get('display_builds', {}).get(source_hash, {})
+    if signature in build.get('contexts', {}).get(kind, []) and reference in build.get('references', {}).get(kind, []):
+        return True
     explicit = row.get('display_contexts', {}).get(kind, [])
     addresses = row.get('display_references', {}).get(kind, [])
     if source_hash in row.get('display_sources', []) and signature in explicit and reference in addresses:
@@ -47,6 +50,9 @@ def display_context_allowed(row, kind, signature, protected, source_hash, refere
 
 
 def display_value(row, kind, reference, source_hash):
+    build = row.get('display_builds', {}).get(source_hash)
+    if build is not None:
+        return build.get('reference_values', {}).get(kind, {}).get(str(reference), row['korean'])
     if source_hash in row.get('display_sources', []):
         return row.get('display_reference_values', {}).get(kind, {}).get(str(reference), row['korean'])
     return row['korean']

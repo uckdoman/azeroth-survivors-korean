@@ -85,6 +85,18 @@ if ui_values.exists() and ui_contexts.exists():
         entry['display_contexts'] = {kind: display.get(kind, {}).get(english, []) for kind in ('metadata', 'direct', 'format')}
         entry['display_references'] = {kind: display['references'][kind].get(english, []) for kind in ('metadata', 'direct', 'format')}
         entry['display_reference_values'] = {kind: display['reference_values'][kind].get(english, {}) for kind in ('metadata', 'direct', 'format')}
+extra_ui_path = ROOT / 'ui-display-builds.json'
+extra_ui = read(extra_ui_path)['sources'] if extra_ui_path.exists() else {}
+for build_hash, build in extra_ui.items():
+    assert re.fullmatch(r'[0-9a-f]{64}', build_hash)
+    for english, display in build['entries'].items():
+        assert english in entries, 'Unregistered translation: ' + english
+        for kind, values in display.get('reference_values', {}).items():
+            assert kind in ('metadata', 'direct', 'format')
+            for korean in values.values():
+                if FORMAT_DISPLAY_OVERRIDES.get(english) != korean:
+                    assert re.findall(r'\{[^{}]*\}', english) == re.findall(r'\{[^{}]*\}', korean), english
+        entries[english].setdefault('display_builds', {})[build_hash] = display
 scripts = [{'original': row['original'], 'translated': row['translated']} for row in read(PREVIOUS / 'assets/injected-lua-rewrites.json')]
 short_guard_config = read(ROOT / 'short-string-guards.json')
 short_guards = short_guard_config['sources'].get(sha(source), [])
@@ -199,5 +211,9 @@ ui_bindings = ROOT / 'ui-bindings.json'
 if ui_bindings.exists():
     bindings = read(ui_bindings)
     database['ui_bindings'] = {bindings['source_sha256']: bindings['bindings']}
+for build_hash, build in extra_ui.items():
+    if build.get('bindings'):
+        assert build_hash not in database.get('ui_bindings', {})
+        database.setdefault('ui_bindings', {})[build_hash] = build['bindings']
 (ROOT / 'translations.json').write_text(json.dumps(database, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
 print(json.dumps({'database_entries': len(entries), 'exact_profile_references': len(profile_patches), 'whole_scripts': len(scripts), 'database_bytes': (ROOT / 'translations.json').stat().st_size, 'skipped_owned_count': len(skipped_owned), 'skipped_iterator_bounds': skipped_iterator_bounds, 'profile_output_sha256': expected_output}))

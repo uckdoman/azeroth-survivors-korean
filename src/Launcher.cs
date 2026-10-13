@@ -12,7 +12,7 @@ using System.Web.Script.Serialization;
 using System.Windows.Forms;
 
 #if !INSTALLER_BUILD
-[assembly: AssemblyVersion("0.71.4.10")]
+[assembly: AssemblyVersion("0.71.4.11")]
 #endif
 
 internal sealed class ReleaseInfo
@@ -39,6 +39,19 @@ internal static class Launcher
     [STAThread]
     private static int Main(string[] args)
     {
+        if (args.Length == 1 && args[0] == "/cleanup-update")
+        {
+            string cleanupFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            if (Path.GetFileName(Assembly.GetExecutingAssembly().Location) == "launcher.pending.exe" &&
+                Path.GetFileName(cleanupFolder) == ".azeroth-ko") cleanupFolder = Path.GetDirectoryName(cleanupFolder);
+            for (int attempt = 0; attempt < 60; attempt++)
+            {
+                CleanupUpdateInstaller(cleanupFolder);
+                if (!File.Exists(Path.Combine(cleanupFolder, "AzerothSurvivors_KoreanPatch.update.exe"))) return 0;
+                Thread.Sleep(500);
+            }
+            return 0;
+        }
         bool checkOnly = false;
         foreach (string arg in args)
         {
@@ -68,6 +81,7 @@ internal static class Launcher
     internal static int Run(string folder, bool checkOnly, Func<byte[]> fetch, string publicKey, ReleaseInfo baseline, Action<ReleaseInfo, string> download = null)
     {
         if (!checkOnly && IsGameRunning(Path.Combine(folder, "AzerothSurvivors.exe"))) { Notice("게임이 이미 실행 중입니다. 게임 종료 후 다시 실행해 주세요."); return 23; }
+        if (!checkOnly) CleanupUpdateInstaller(folder);
         List<ReleaseInfo> trusted = new List<ReleaseInfo>();
         if (baseline != null) trusted.Add(baseline);
         string cache = Path.Combine(folder, ".azeroth-ko", "update.cached.json");
@@ -97,6 +111,8 @@ internal static class Launcher
         }
 
         int result = 0;
+        string installer = Path.Combine(folder, "AzerothSurvivors_KoreanPatch.update.exe");
+        bool preserveInstaller = false;
         try
         {
             bool repairTranslation = release.GameIndependent && !IsNewer(installed, release.Version) && !GameValid(folder, release);
@@ -107,7 +123,6 @@ internal static class Launcher
                     if (checkOnly) return 26;
                     return StartExisting(folder, trusted, 26);
                 }
-                string installer = Path.Combine(folder, "AzerothSurvivors_KoreanPatch.update.exe");
                 PatchProgress.Report("최신 한글 패치를 내려받고 있습니다.");
                 if (download == null) DownloadInstaller(release, installer);
                 else download(release, installer);
@@ -120,7 +135,7 @@ internal static class Launcher
                     if (HashStream(hold) != release.InstallerHash) throw new InvalidDataException("Installer changed");
                     using (Process process = Process.Start(new ProcessStartInfo(installer, "/quiet /skip-update") { WorkingDirectory = folder, UseShellExecute = false, CreateNoWindow = true }))
                     {
-                        if (!process.WaitForExit(180000)) { Notice("업데이트가 아직 진행 중입니다. 완료 후 다시 실행해 주세요."); return 25; }
+                        if (!process.WaitForExit(180000)) { preserveInstaller = true; Notice("업데이트가 아직 진행 중입니다. 완료 후 다시 실행해 주세요."); return 25; }
                         if (process.ExitCode != 0) throw new InvalidDataException("Installer failed");
                     }
                 }
@@ -143,8 +158,22 @@ internal static class Launcher
             Notice("업데이트하지 못했습니다. 현재 버전으로 실행합니다.");
             return StartExisting(folder, trusted, 21);
         }
-        finally { PatchProgress.Close(); }
+        finally
+        {
+            if (!checkOnly && !preserveInstaller) CleanupUpdateInstaller(folder);
+            PatchProgress.Close();
+        }
         return StartExisting(folder, trusted, result);
+    }
+
+    internal static void CleanupUpdateInstaller(string folder)
+    {
+        string installer = Path.Combine(folder, "AzerothSurvivors_KoreanPatch.update.exe");
+        try
+        {
+            if (!IsGameRunning(installer)) File.Delete(installer);
+        }
+        catch { }
     }
 
     internal static bool IsNewer(Version candidate, Version installed) { return candidate.CompareTo(installed) > 0; }
@@ -382,7 +411,7 @@ internal static class Launcher
 
     private static bool IsGameRunning(string game)
     {
-        foreach (Process process in Process.GetProcessesByName("AzerothSurvivors"))
+        foreach (Process process in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(game)))
         {
             using (process)
             {
