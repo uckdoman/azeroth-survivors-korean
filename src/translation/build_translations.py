@@ -12,7 +12,7 @@ ROOT = pathlib.Path(__file__).resolve().parent
 WORK = ROOT.parent
 PREVIOUS = WORK / 'azeroth-0.71.4'
 shutil.copyfile(WORK / 'localization-runtime/rust_fmt_template.py', ROOT / 'rust_fmt_template.py')
-from translator import sha, metadata_context, code_context, Cs, CS_ARCH_X86, CS_MODE_64, pefile
+from translator import sha, metadata_context, code_context, memory_copy_call, iterator_bound_reference, FORMAT_DISPLAY_OVERRIDES, parse_template, Cs, CS_ARCH_X86, CS_MODE_64, pefile
 
 read = lambda p: json.loads(p.read_text(encoding='utf-8'))
 source = (PREVIOUS / 'AzerothSurvivors.original.exe').read_bytes()
@@ -50,21 +50,60 @@ for patch in report['patches']:
     korean = patch['korean']
     if english in protected or english == korean:
         continue
-    assert re.findall(r'\{[^{}]*\}', english) == re.findall(r'\{[^{}]*\}', korean), english
-    entry = entries.setdefault(english, {'korean': korean, 'metadata_contexts': [], 'direct_contexts': [], 'format_contexts': []})
+    if english not in FORMAT_DISPLAY_OVERRIDES or korean != FORMAT_DISPLAY_OVERRIDES[english]:
+        assert re.findall(r'\{[^{}]*\}', english) == re.findall(r'\{[^{}]*\}', korean), english
+    entry = entries.setdefault(english, {'korean': korean, 'metadata_contexts': [], 'direct_contexts': [], 'format_contexts': [], 'owned_copy_contexts': [], 'iterator_bound_contexts': []})
     if kind == 'str':
         signature = metadata_context(source, pe, patch['offset'])
         entry['metadata_contexts'].append(signature)
     else:
         signature = code_context(cs, code, row['address'] - cb, row['address'])
         entry['direct_contexts' if kind == 'code' else 'format_contexts'].append(signature)
+        if kind == 'code' and memory_copy_call(cs, pe, source, row['address']):
+            entry['owned_copy_contexts'].append(signature)
+        if kind == 'fmt' and iterator_bound_reference(cs, pe, source, row['address']):
+            entry['iterator_bound_contexts'].append(signature)
 for entry in entries.values():
-    for kind in ('metadata_contexts', 'direct_contexts', 'format_contexts'):
+    for kind in ('metadata_contexts', 'direct_contexts', 'format_contexts', 'owned_copy_contexts', 'iterator_bound_contexts'):
         entry[kind] = sorted(set(entry[kind]))
+extra_contexts = ROOT / 'display-context-overrides.json'
+if extra_contexts.exists():
+    for english, signatures in read(extra_contexts).items():
+        entries[english]['metadata_contexts'] = sorted(set(entries[english]['metadata_contexts'] + signatures))
+for english, korean in FORMAT_DISPLAY_OVERRIDES.items():
+    entries[english]['korean'] = korean
 scripts = [{'original': row['original'], 'translated': row['translated']} for row in read(PREVIOUS / 'assets/injected-lua-rewrites.json')]
-native = (PREVIOUS / 'testgame/AzerothSurvivors_KO.exe').read_bytes().replace(b'https://patch.invalid', b'https://wow.aethus.pl')
-expected_output = '1c5f5732b6c59264421153cec08238deba005ea2e58d953fe1d63b8b30c38179'
-assert sha(native) == expected_output
+native = bytearray((PREVIOUS / 'testgame/AzerothSurvivors_KO.exe').read_bytes().replace(b'https://patch.invalid', b'https://wow.aethus.pl'))
+native_pe = pefile.PE(data=bytes(native), fast_load=True)
+skipped_owned = []
+skipped_iterator_bounds = []
+for patch in profile_patches:
+    if patch['kind'] == 'fmt':
+        bound = iterator_bound_reference(cs, pe, source, patch['address'])
+        if bound:
+            at = pe.get_offset_from_rva(patch['address'] - base)
+            native[at + 3:at + 7] = source[at + 3:at + 7]
+            skipped_iterator_bounds.append({'address': hex(patch['address']), 'english': patch['english'], **bound})
+        elif patch['english'] in FORMAT_DISPLAY_OVERRIDES:
+            at = pe.get_offset_from_rva(patch['address'] - base)
+            original_target = patch['address'] + 7 + struct.unpack_from('<i', source, at + 3)[0]
+            pieces, _ = parse_template(source, pe.get_offset_from_rva(original_target - base))
+            placeholders = [piece.raw for piece in pieces if piece.kind == 'placeholder']
+            assert len(placeholders) == 2 and placeholders[0] == b'\xc0'
+            target = patch['address'] + 7 + struct.unpack_from('<i', native, at + 3)[0]
+            target_at = native_pe.get_offset_from_rva(target - base)
+            native[target_at:target_at + 2] = placeholders[0] + b'\0'
+        continue
+    if patch['kind'] != 'code' or len(patch['english'].encode('utf-8')) == len(patch['korean'].encode('utf-8')) or not memory_copy_call(cs, pe, source, patch['address']):
+        continue
+    at = pe.get_offset_from_rva(patch['address'] - base)
+    native[at + 3:at + 7] = source[at + 3:at + 7]
+    length_at = pe.get_offset_from_rva(patch['length_address'] - base)
+    ins = next(cs.disasm(source[length_at:length_at + 16], patch['length_address']))
+    imm = length_at + ins.imm_offset
+    native[imm:imm + ins.imm_size] = source[imm:imm + ins.imm_size]
+    skipped_owned.append({'address': hex(patch['address']), 'english': patch['english']})
+expected_output = sha(native)
 fields = []
 for patch in report['patches']:
     kind = patch['kind']
@@ -101,10 +140,14 @@ delta = [{'offset': left, 'before_hex': source[left:right].hex(), 'after_base64'
          for left, right in merged if source[left:right] != native[left:right]]
 kind_map = {'str': 'metadata', 'code': 'direct', 'fmt': 'format', 'lua': 'scripts', 'inline-owned-string': 'inline'}
 matched_counts = dict(collections.Counter(kind_map[p['kind']] for p in report['patches']))
+matched_counts['direct'] -= len(skipped_owned)
+matched_counts['format'] -= len(skipped_iterator_bounds)
 profile = {'delta': delta, 'append_base64': base64.b64encode(native[len(source):]).decode(),
-           'matched_counts': matched_counts, 'expected_output_sha256': expected_output}
+           'matched_counts': matched_counts, 'expected_output_sha256': expected_output,
+           'skipped_owned_strings': skipped_owned, 'owned_copy_safe': True,
+           'skipped_iterator_bounds': skipped_iterator_bounds, 'iterator_bounds_safe': True}
 database = {'schema': 1, 'translations': dict(sorted(entries.items())), 'protected': sorted(protected),
             'max_text_bytes': max(len(english.encode('utf-8')) for english in entries), 'scripts': scripts,
             'profiles': {sha(source): profile}}
 (ROOT / 'translations.json').write_text(json.dumps(database, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
-print(json.dumps({'database_entries': len(entries), 'exact_profile_references': len(profile_patches), 'whole_scripts': len(scripts), 'database_bytes': (ROOT / 'translations.json').stat().st_size}))
+print(json.dumps({'database_entries': len(entries), 'exact_profile_references': len(profile_patches), 'whole_scripts': len(scripts), 'database_bytes': (ROOT / 'translations.json').stat().st_size, 'skipped_owned_count': len(skipped_owned), 'skipped_iterator_bounds': skipped_iterator_bounds, 'profile_output_sha256': expected_output}))

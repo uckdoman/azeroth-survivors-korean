@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Reflection;
@@ -8,7 +9,7 @@ using System.Text;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
 
-[assembly: AssemblyVersion("0.71.4.2")]
+[assembly: AssemblyVersion("0.71.4.3")]
 internal static class Rollback
 {
     const string Original = "f497c0589920e2fdd8c84d89b6602592bd7c609dccd55b39ea27578cc10f495a";
@@ -30,11 +31,40 @@ internal static class Rollback
             using (var gate = new FileStream(Path.Combine(folder, ".azeroth-ko-install.lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 1, FileOptions.DeleteOnClose))
             {
                 string current = Hash(game);
-                if (current != Original && current != Blocked && current != Korean)
-                    throw new IOException("이 파일은 0.71.4 한글판을 같은 버전의 원본으로 복원합니다.");
                 string data = Path.Combine(folder, ".azeroth-ko");
                 Directory.CreateDirectory(data);
                 File.SetAttributes(data, File.GetAttributes(data) | FileAttributes.Hidden);
+                string sourceHash = Original;
+                string diskSource = null;
+                string version = "0.71.4.3";
+                string ownedOverlay = Overlay;
+                string statePath = Path.Combine(data, "installed.json");
+                if (File.Exists(statePath))
+                {
+                    var state = new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(File.ReadAllText(statePath, Encoding.UTF8));
+                    object value;
+                    if (state.TryGetValue("version", out value)) version = Convert.ToString(value);
+                    if (state.TryGetValue("overlay_sha256", out value)) ownedOverlay = Convert.ToString(value);
+                    string savedSource = state.ContainsKey("source_sha256") ? Convert.ToString(state["source_sha256"]) : "";
+                    string savedPatched = state.ContainsKey("patched_exe_sha256") ? Convert.ToString(state["patched_exe_sha256"]) : "";
+                    if (System.Text.RegularExpressions.Regex.IsMatch(savedSource, "^[a-f0-9]{64}$"))
+                    {
+                        if (current == savedPatched)
+                        {
+                            diskSource = Path.Combine(data, "source-" + savedSource.Substring(0, 16), "AzerothSurvivors.exe");
+                            if (!File.Exists(diskSource) || Hash(diskSource) != savedSource) throw new IOException("현재 게임 버전의 원본을 찾지 못했습니다.");
+                            sourceHash = savedSource;
+                        }
+                        else if (current != Blocked && current != Korean)
+                        {
+                            // Preserve an official game update instead of using an older backup.
+                            diskSource = game;
+                            sourceHash = current;
+                        }
+                    }
+                }
+                if (diskSource == null && current != Original && current != Blocked && current != Korean)
+                    throw new IOException("이 게임 버전의 복원 원본을 찾지 못했습니다.");
                 string raw = Path.Combine(data, ".rollback-source-" + Guid.NewGuid().ToString("N") + ".exe");
                 string before = Path.Combine(data, "before-rollback-" + current.Substring(0, 16) + ".exe");
                 string overlay = Path.Combine(folder, "Data", "patch-Z.MPQ");
@@ -42,11 +72,15 @@ internal static class Rollback
                 bool replaced = false, moved = false;
                 try
                 {
-                    using (Stream resource = Assembly.GetExecutingAssembly().GetManifestResourceStream("original-game.gz"))
-                    using (var gzip = new GZipStream(resource, CompressionMode.Decompress))
-                    using (var output = new FileStream(raw, FileMode.CreateNew, FileAccess.Write, FileShare.None)) gzip.CopyTo(output);
-                    if (Hash(raw) != Original) throw new IOException("원본 복원 파일을 읽지 못했습니다.");
-                    if (File.Exists(overlay) && Hash(overlay) != Overlay) throw new IOException("다른 패치가 있어 자동 복원할 수 없습니다.");
+                    if (diskSource != null) File.Copy(diskSource, raw);
+                    else
+                    {
+                        using (Stream resource = Assembly.GetExecutingAssembly().GetManifestResourceStream("original-game.gz"))
+                        using (var gzip = new GZipStream(resource, CompressionMode.Decompress))
+                        using (var output = new FileStream(raw, FileMode.CreateNew, FileAccess.Write, FileShare.None)) gzip.CopyTo(output);
+                    }
+                    if (Hash(raw) != sourceHash) throw new IOException("원본 복원 파일을 읽지 못했습니다.");
+                    if (File.Exists(overlay) && Hash(overlay) != ownedOverlay) throw new IOException("다른 패치가 있어 자동 복원할 수 없습니다.");
                     if (!File.Exists(before)) File.Copy(game, before);
                     if (Hash(before) != current || Hash(game) != current) throw new IOException("게임 파일이 변경되었습니다. 다시 실행해 주세요.");
                     if (File.Exists(overlay))
@@ -55,11 +89,11 @@ internal static class Rollback
                         File.Move(overlay, movedOverlay);
                         moved = true;
                     }
-                    if (current != Original) { File.Replace(raw, game, null); replaced = true; }
+                    if (current != sourceHash) { File.Replace(raw, game, null); replaced = true; }
                     var json = new JavaScriptSerializer();
-                    string metadata = json.Serialize(new { schema = 1, version = "0.71.4.2", game_independent = true,
-                        restored = true, source_sha256 = Original, patched_exe_sha256 = Original,
-                        overlay_sha256 = Overlay, translations_sha256 = "", source_backup = "", launcher_pending = false });
+                    string metadata = json.Serialize(new { schema = 1, version = version, game_independent = true,
+                        restored = true, source_sha256 = sourceHash, patched_exe_sha256 = sourceHash,
+                        overlay_sha256 = ownedOverlay, translations_sha256 = "", source_backup = "", launcher_pending = false });
                     File.WriteAllText(Path.Combine(data, "installed.json"), metadata, new UTF8Encoding(false));
                     string legacy = Path.Combine(folder, "한글패치_원본백업", "installed.json");
                     if (File.Exists(legacy)) File.WriteAllText(legacy, metadata, new UTF8Encoding(false));
@@ -72,7 +106,7 @@ internal static class Rollback
                 }
                 finally { if (File.Exists(raw)) File.Delete(raw); }
             }
-            MessageBox.Show("0.71.4 원본으로 복원했습니다.\nAzerothSurvivors.exe로 실행해 주세요.", "아제로스 서바이버 롤백", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("현재 게임 버전의 원본으로 복원했습니다.\nAzerothSurvivors.exe로 실행해 주세요.", "아제로스 서바이버 롤백", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return 0;
         }
         catch (Exception error) { MessageBox.Show(error.Message, "아제로스 서바이버 롤백", MessageBoxButtons.OK, MessageBoxIcon.Error); return 1; }

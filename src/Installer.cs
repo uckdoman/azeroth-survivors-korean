@@ -11,13 +11,13 @@ using System.Windows.Forms;
 
 [assembly: AssemblyTitle("Azeroth Survivors 한국어 패치")]
 [assembly: AssemblyDescription("게임 폴더에 넣고 실행하는 한국어 패치 설치기")]
-[assembly: AssemblyVersion("0.71.4.2")]
+[assembly: AssemblyVersion("0.71.4.3")]
 
 internal static class Installer
 {
     const string OverlayHash = "aba0e46a60c39064d477fe9df7ee8c5d84b06bbd8b648c126ae2dc2c362d788a";
     const string Title = "아제로스 서바이버 한글 패치";
-    const string PatchVersion = "0.71.4.2";
+    const string PatchVersion = "0.71.4.3";
     const string RetryMessage = "설치하지 못했습니다. 게임을 종료하고 다시 실행해 주세요.";
     static readonly string[] PreviousOverlayHashes = {
         "60268bcad6a3817a621a47e6f745e3a353fadf0ad85ec7f0a92b09dda1eb452f",
@@ -53,6 +53,8 @@ internal static class Installer
             string backupDir = Path.Combine(folder, ".azeroth-ko");
             string legacyBackupDir = Path.Combine(folder, "한글패치_원본백업");
             if (!File.Exists(game)) throw new UserError("설치기를 게임 폴더에 넣고 다시 실행해 주세요.");
+            PatchProgress.Open(!quiet, restore ? "영문판으로 복원하고 있습니다." :
+                skipUpdate ? "설치를 준비하고 있습니다." : "최신 한글 패치를 확인하고 있습니다.");
             // 새 설치기가 직접 설치 잠금을 얻도록 먼저 위임합니다.
             if (!restore && !skipUpdate && InstallerUpdate.TryInstallLatest(folder, new Version(PatchVersion), quiet))
             {
@@ -106,6 +108,7 @@ internal static class Installer
                 string sourceRelative = BackupRelative(sourceHash);
                 string sourceDir = Path.Combine(backupDir, "source-" + sourceHash.Substring(0, 16));
                 string backup = Path.Combine(sourceDir, "AzerothSurvivors.exe");
+                PatchProgress.Report("원본 게임을 준비하고 있습니다.");
                 string stage = Path.Combine(folder, ".azeroth-ko-stage-" + Guid.NewGuid().ToString("N"));
                 Directory.CreateDirectory(stage);
                 string runtime = Path.Combine(backupDir, "translation-runtime");
@@ -160,6 +163,7 @@ internal static class Installer
                     var state = new InstalledState { Version = PatchVersion, SourceHash = sourceHash, PatchedHash = patchedHash,
                         TranslationHash = translationsHash, OverlayHash = stagedOverlayHash ?? OverlayHash,
                         SourceBackup = sourceRelative, Restored = restore };
+                    PatchProgress.Report(restore ? "영문판으로 복원하고 있습니다." : "번역을 적용하고 있습니다.");
                     CheckGameStopped();
                     if (Hash(game) != current || File.Exists(overlay) != hasOverlay || (hasOverlay && Hash(overlay) != currentOverlayHash))
                         throw new IOException("Game files changed while installing.");
@@ -230,11 +234,13 @@ internal static class Installer
         }
         catch (Exception error)
         {
+            PatchProgress.Close();
             string message = error is UserError || error is InstallerUpdate.UpdateError ? error.Message : RetryMessage;
             if (quiet) Console.Error.WriteLine(message);
             else MessageBox.Show(message, Title, MessageBoxButtons.OK, MessageBoxIcon.Error);
             return 1;
         }
+        finally { PatchProgress.Close(); }
     }
 
     static bool OwnedOverlay(string hash, InstalledState state)
@@ -325,6 +331,7 @@ internal static class Installer
         };
         using (Process translator = new Process())
         {
+            PatchProgress.Report("게임을 번역하고 있습니다.");
             translator.StartInfo = start;
             translator.ErrorDataReceived += delegate(object sender, DataReceivedEventArgs line) {
                 if (line.Data == null) return;
@@ -332,10 +339,20 @@ internal static class Installer
             };
             if (!translator.Start()) throw new IOException("Translator did not start.");
             translator.BeginErrorReadLine();
-            if (!translator.WaitForExit(180000))
+            Stopwatch workTime = Stopwatch.StartNew();
+            bool dataStage = false;
+            while (!translator.WaitForExit(250))
             {
-                StopTranslator(translator);
-                throw new TimeoutException("Translator timeout.");
+                if (!dataStage && File.Exists(output + ".translation.json"))
+                {
+                    dataStage = true;
+                    PatchProgress.Report("게임 데이터를 번역하고 있습니다.");
+                }
+                if (workTime.ElapsedMilliseconds >= 180000)
+                {
+                    StopTranslator(translator);
+                    throw new TimeoutException("Translator timeout.");
+                }
             }
             translator.WaitForExit();
             if (translator.ExitCode != 0 || !File.Exists(output))
@@ -589,6 +606,7 @@ internal static class Installer
 
     static void Tell(string text, bool quiet)
     {
+        PatchProgress.Close();
         if (quiet) Console.WriteLine(text);
         else MessageBox.Show(text, Title, MessageBoxButtons.OK, MessageBoxIcon.Information);
     }

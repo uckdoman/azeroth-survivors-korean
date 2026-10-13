@@ -12,7 +12,7 @@ using System.Web.Script.Serialization;
 using System.Windows.Forms;
 
 #if !INSTALLER_BUILD
-[assembly: AssemblyVersion("0.71.4.2")]
+[assembly: AssemblyVersion("0.71.4.3")]
 #endif
 
 internal sealed class ReleaseInfo
@@ -51,10 +51,10 @@ internal static class Launcher
         {
             bool owned;
             try { owned = gate.WaitOne(0); } catch (AbandonedMutexException) { owned = true; }
-            if (!owned) { Notice("한글패치 실행기가 이미 실행 중입니다."); return 23; }
+            if (!owned) { if (!checkOnly) Notice("한글패치 실행기가 이미 실행 중입니다."); return 23; }
             try { return Run(folder, checkOnly); }
-            catch (Exception) { Notice("게임을 실행하지 못했습니다. 한글 패치를 다시 설치해 주세요."); return 22; }
-            finally { gate.ReleaseMutex(); }
+            catch (Exception) { if (!checkOnly) Notice("게임을 실행하지 못했습니다. 한글 패치를 다시 설치해 주세요."); return 22; }
+            finally { PatchProgress.Close(); gate.ReleaseMutex(); }
         }
     }
 
@@ -84,6 +84,7 @@ internal static class Launcher
         }
         ReleaseInfo release;
         byte[] envelope;
+        PatchProgress.Open(!Quiet && !checkOnly, "최신 한글 패치를 확인하고 있습니다.");
         try
         {
             envelope = fetch();
@@ -107,10 +108,12 @@ internal static class Launcher
                     return StartExisting(folder, trusted, 26);
                 }
                 string installer = Path.Combine(folder, "AzerothSurvivors_KoreanPatch.update.exe");
+                PatchProgress.Report("최신 한글 패치를 내려받고 있습니다.");
                 if (download == null) DownloadInstaller(release, installer);
                 else download(release, installer);
                 VerifyInstallerFile(release, installer);
                 if (checkOnly) return 10;
+                PatchProgress.Report("최신 한글 패치를 설치하고 있습니다.");
                 // Hold the verified file against replacement until the installer exits.
                 using (FileStream hold = new FileStream(installer, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
@@ -122,6 +125,7 @@ internal static class Launcher
                     }
                 }
                 bool afterRestore;
+                PatchProgress.Report("설치를 마무리하고 있습니다.");
                 if (ReadInstalledVersion(folder, out afterRestore) != release.Version || afterRestore || !GameValid(folder, release)) throw new InvalidDataException("Installed files did not match");
                 trusted.Add(release);
                 SaveCache(cache, envelope);
@@ -139,6 +143,7 @@ internal static class Launcher
             Notice("업데이트하지 못했습니다. 현재 버전으로 실행합니다.");
             return StartExisting(folder, trusted, 21);
         }
+        finally { PatchProgress.Close(); }
         return StartExisting(folder, trusted, result);
     }
 
@@ -329,6 +334,7 @@ internal static class Launcher
 
     private static int StartExisting(string folder, List<ReleaseInfo> trusted, int result)
     {
+        PatchProgress.Close();
         FileStream installLock;
         try { installLock = new FileStream(Path.Combine(folder, ".azeroth-ko-install.lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 1, FileOptions.DeleteOnClose); }
         catch { Notice("설치가 진행 중입니다. 잠시 후 다시 실행해 주세요."); return 25; }
@@ -437,5 +443,132 @@ internal static class Launcher
     internal static string HashStream(Stream stream) { using (SHA256 sha = SHA256.Create()) return Hex(sha.ComputeHash(stream)); }
     private static string HashBytes(byte[] bytes) { using (SHA256 sha = SHA256.Create()) return Hex(sha.ComputeHash(bytes)); }
     private static string Hex(byte[] bytes) { return BitConverter.ToString(bytes).Replace("-", "").ToLowerInvariant(); }
-    private static void Notice(string text) { if (!Quiet) MessageBox.Show(text, "AzerothSurvivors 한글패치", MessageBoxButtons.OK, MessageBoxIcon.Information); }
+    private static void Notice(string text) { PatchProgress.Close(); if (!Quiet) MessageBox.Show(text, "아제로스 서바이버 한글 패치", MessageBoxButtons.OK, MessageBoxIcon.Information); }
+}
+
+internal static class PatchProgress
+{
+    static readonly object Gate = new object();
+    static WindowSession Current;
+
+    internal static void Open(bool enabled, string text)
+    {
+        if (!enabled) return;
+        lock (Gate)
+        {
+            if (Current == null) Current = new WindowSession(text);
+            else Current.Report(text);
+        }
+    }
+
+    internal static void Report(string text)
+    {
+        WindowSession current;
+        lock (Gate) current = Current;
+        if (current != null) current.Report(text);
+    }
+
+    internal static void Close()
+    {
+        WindowSession current;
+        lock (Gate) { current = Current; Current = null; }
+        if (current != null) current.Dispose();
+    }
+
+    sealed class WindowSession : IDisposable
+    {
+        readonly object gate = new object();
+        readonly ManualResetEvent ready = new ManualResetEvent(false);
+        readonly Thread thread;
+        Form window;
+        Label status;
+        string text;
+        bool closing;
+
+        internal WindowSession(string initialText)
+        {
+            text = initialText;
+            thread = new Thread(Run);
+            thread.IsBackground = true;
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            ready.WaitOne(5000);
+        }
+
+        void Run()
+        {
+            try
+            {
+                Application.EnableVisualStyles();
+                using (var form = new Form())
+                {
+                    form.Text = "아제로스 서바이버 한글 패치";
+                    form.ClientSize = new System.Drawing.Size(440, 112);
+                    form.Font = System.Drawing.SystemFonts.MessageBoxFont;
+                    form.FormBorderStyle = FormBorderStyle.FixedDialog;
+                    form.StartPosition = FormStartPosition.CenterScreen;
+                    form.MaximizeBox = false;
+                    form.MinimizeBox = false;
+                    form.ControlBox = false;
+                    form.Padding = new Padding(20);
+                    form.AutoScaleMode = AutoScaleMode.Font;
+                    var label = new Label { Dock = DockStyle.Top, Height = 36, AutoSize = false, Text = text,
+                        AccessibleName = "현재 작업 상태" };
+                    var bar = new ProgressBar { Dock = DockStyle.Top, Height = 20, Style = ProgressBarStyle.Marquee,
+                        MarqueeAnimationSpeed = 30, AccessibleName = "작업 진행 중" };
+                    form.Controls.Add(bar);
+                    form.Controls.Add(label);
+                    form.FormClosing += delegate(object sender, FormClosingEventArgs args) {
+                        lock (gate) args.Cancel = !closing;
+                    };
+                    lock (gate)
+                    {
+                        window = form;
+                        status = label;
+                        IntPtr handle = form.Handle;
+                        ready.Set();
+                        if (closing) return;
+                    }
+                    // 파일 작업과 분리된 메시지 루프에서 진행 표시를 계속 움직입니다.
+                    Application.Run(form);
+                }
+            }
+            catch { }
+            finally
+            {
+                lock (gate) { window = null; status = null; ready.Set(); }
+            }
+        }
+
+        internal void Report(string message)
+        {
+            lock (gate)
+            {
+                text = message;
+                if (closing || window == null || !window.IsHandleCreated) return;
+                try
+                {
+                    window.BeginInvoke((Action)delegate {
+                        lock (gate) { if (!closing && status != null) status.Text = text; }
+                    });
+                }
+                catch (InvalidOperationException) { }
+            }
+        }
+
+        public void Dispose()
+        {
+            lock (gate)
+            {
+                closing = true;
+                if (window != null && window.IsHandleCreated)
+                {
+                    try { window.BeginInvoke((Action)delegate { if (!window.IsDisposed) window.Close(); }); }
+                    catch (InvalidOperationException) { }
+                }
+            }
+            if (thread != Thread.CurrentThread) thread.Join(5000);
+            if (!thread.IsAlive) ready.Dispose();
+        }
+    }
 }

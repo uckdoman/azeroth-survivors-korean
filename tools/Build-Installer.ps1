@@ -11,7 +11,7 @@ $compiler = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
 if (-not (Test-Path -LiteralPath $compiler)) { $compiler = Join-Path $env:WINDIR 'Microsoft.NET\Framework\v4.0.30319\csc.exe' }
 $launcher = Join-Path $buildOutput 'AzerothSurvivors_KoreanLauncher.exe'
 $installer = Join-Path $buildOutput 'AzerothSurvivors_KoreanPatch.exe'
-& $compiler /nologo /target:winexe /platform:anycpu /optimize+ /reference:System.Web.Extensions.dll /reference:System.Windows.Forms.dll "/resource:$(Join-Path $repoSource 'release-public-key.xml'),release-public-key.xml" "/resource:$(Join-Path $repoSource 'initial-baseline.json'),initial-baseline.json" "/out:$launcher" (Join-Path $repoSource 'Launcher.cs')
+& $compiler /nologo /target:winexe /platform:anycpu /optimize+ /reference:System.Web.Extensions.dll /reference:System.Windows.Forms.dll /reference:System.Drawing.dll "/resource:$(Join-Path $repoSource 'release-public-key.xml'),release-public-key.xml" "/resource:$(Join-Path $repoSource 'initial-baseline.json'),initial-baseline.json" "/out:$launcher" (Join-Path $repoSource 'Launcher.cs')
 if ($LASTEXITCODE -ne 0) { throw 'Launcher compile failed.' }
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -22,7 +22,7 @@ try {
         [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive, (Join-Path $buildInput $name), $name, [IO.Compression.CompressionLevel]::Optimal) | Out-Null
     }
 } finally { $archive.Dispose() }
-& $compiler /nologo /target:winexe /platform:anycpu /optimize+ /define:INSTALLER_BUILD /main:Installer /reference:System.Web.Extensions.dll /reference:System.Windows.Forms.dll /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll "/resource:$zipPath,patch.zip" "/resource:$(Join-Path $buildInput 'translation-runtime.zip'),translation-runtime.zip" "/resource:$launcher,launcher.exe" "/resource:$(Join-Path $repoSource 'release-public-key.xml'),release-public-key.xml" "/out:$installer" (Join-Path $repoSource 'Installer.cs') (Join-Path $repoSource 'InstallerUpdate.cs') (Join-Path $repoSource 'Launcher.cs')
+& $compiler /nologo /target:winexe /platform:anycpu /optimize+ /define:INSTALLER_BUILD /main:Installer /reference:System.Web.Extensions.dll /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll "/resource:$zipPath,patch.zip" "/resource:$(Join-Path $buildInput 'translation-runtime.zip'),translation-runtime.zip" "/resource:$launcher,launcher.exe" "/resource:$(Join-Path $repoSource 'release-public-key.xml'),release-public-key.xml" "/out:$installer" (Join-Path $repoSource 'Installer.cs') (Join-Path $repoSource 'InstallerUpdate.cs') (Join-Path $repoSource 'Launcher.cs')
 if ($LASTEXITCODE -ne 0) { throw 'Installer compile failed.' }
 Remove-Item -LiteralPath $zipPath
 $metadata = Get-Content -LiteralPath (Join-Path $buildInput 'release-template.json') -Raw -Encoding UTF8 | ConvertFrom-Json

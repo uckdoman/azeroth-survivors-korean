@@ -16,6 +16,8 @@ from capstone import Cs, CS_ARCH_X86, CS_MODE_64
 from capstone.x86 import X86_OP_IMM, X86_OP_MEM, X86_OP_REG
 from rust_fmt_template import parse_template, encode_literal
 
+FORMAT_DISPLAY_OVERRIDES = {'{0} rank {1}': '{0}'}
+
 
 def sha(data):
     return hashlib.sha256(data).hexdigest()
@@ -80,6 +82,107 @@ def format_text(pieces):
     return ''.join(parts)
 
 
+def memory_copy_call(cs, pe, source, address):
+    """A constant copy length does not prove that its allocation can grow."""
+    base = pe.OPTIONAL_HEADER.ImageBase
+    if not hasattr(pe, '_translation_imports'):
+        pe.parse_data_directories(directories=[pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_IMPORT']])
+        pe._translation_imports = {item.address: item.name for entry in getattr(pe, 'DIRECTORY_ENTRY_IMPORT', []) for item in entry.imports}
+    imports = pe._translation_imports
+    try:
+        at = pe.get_offset_from_rva(address - base)
+        for ins in cs.disasm(source[at:at + 80], address):
+            if ins.mnemonic not in ('call', 'jmp'):
+                continue
+            operand = ins.operands[0]
+            import_address = None
+            if operand.type == X86_OP_MEM and ins.reg_name(operand.mem.base) == 'rip':
+                import_address = ins.address + ins.size + operand.mem.disp
+            elif operand.type == X86_OP_IMM:
+                target = operand.imm
+                thunk_at = pe.get_offset_from_rva(target - base)
+                thunk = next(cs.disasm(source[thunk_at:thunk_at + 16], target))
+                if thunk.mnemonic == 'jmp' and thunk.operands[0].type == X86_OP_MEM and thunk.reg_name(thunk.operands[0].mem.base) == 'rip':
+                    import_address = thunk.address + thunk.size + thunk.operands[0].mem.disp
+            name = imports.get(import_address)
+            return name.decode('ascii') if name in (b'memcpy', b'memmove', b'memcpy_s', b'memmove_s', b'strcpy', b'strncpy', b'strcpy_s', b'strncpy_s') else None
+    except (ValueError, StopIteration, pefile.PEFormatError):
+        return None
+    return None
+
+
+def iterator_bound_reference(cs, pe, source, address):
+    """Recognize a paired begin/end passed to the confirmed 80-byte iterator."""
+    base = pe.OPTIONAL_HEADER.ImageBase
+    try:
+        at = pe.get_offset_from_rva(address - base)
+        current = list(cs.disasm(source[at:at + 80], address))
+        if len(current) < 2 or current[0].mnemonic != 'lea' or current[1].mnemonic != 'mov':
+            return None
+        load, store = current[:2]
+        if load.operands[0].type != X86_OP_REG or load.operands[1].type != X86_OP_MEM or load.reg_name(load.operands[1].mem.base) != 'rip':
+            return None
+        if store.operands[0].type != X86_OP_MEM or store.operands[1].type != X86_OP_REG or store.operands[1].reg != load.operands[0].reg:
+            return None
+        end = load.address + load.size + load.operands[1].mem.disp
+        destination = store.operands[0].mem
+        previous = None
+        for distance in range(8, 25):
+            start = at - distance
+            if start < 0:
+                continue
+            pair = list(cs.disasm(source[start:at], address - distance))
+            if len(pair) != 2 or pair[0].address + sum(ins.size for ins in pair) != address:
+                continue
+            first, second = pair
+            if first.mnemonic != 'lea' or second.mnemonic != 'mov' or len(first.operands) != 2 or len(second.operands) != 2:
+                continue
+            if first.operands[0].type != X86_OP_REG or first.operands[1].type != X86_OP_MEM or first.reg_name(first.operands[1].mem.base) != 'rip':
+                continue
+            if second.operands[0].type != X86_OP_MEM or second.operands[1].type != X86_OP_REG or second.operands[1].reg != first.operands[0].reg:
+                continue
+            mem = second.operands[0].mem
+            if mem.base == destination.base and mem.index == destination.index and mem.disp + 8 == destination.disp:
+                previous = first
+                break
+        if previous is None:
+            return None
+        begin = previous.address + previous.size + previous.operands[1].mem.disp
+        rdata = next(s for s in pe.sections if s.Name.rstrip(b'\0') == b'.rdata')
+        low = base + rdata.VirtualAddress
+        high = low + rdata.SizeOfRawData
+        if not low <= begin < end <= high or (end - begin) % 80:
+            return None
+        call = next((ins for ins in current[:8] if ins.mnemonic == 'call'), None)
+        if call is None or call.operands[0].type != X86_OP_IMM:
+            return None
+        target = call.operands[0].imm
+        callee_at = pe.get_offset_from_rva(target - base)
+        callee = list(cs.disasm(source[callee_at:callee_at + 160], target))
+        begins = set()
+        ends = set()
+        for ins in callee:
+            if ins.mnemonic != 'mov' or len(ins.operands) != 2 or ins.operands[0].type != X86_OP_REG or ins.operands[1].type != X86_OP_MEM:
+                continue
+            mem = ins.operands[1].mem
+            if ins.reg_name(mem.base) == 'rdx' and mem.index == 0:
+                if mem.disp == 0:
+                    begins.add(ins.operands[0].reg)
+                elif mem.disp == 8:
+                    ends.add(ins.operands[0].reg)
+        compares_bounds = any(ins.mnemonic == 'cmp' and len(ins.operands) == 2 and
+                              ins.operands[0].type == X86_OP_REG and ins.operands[1].type == X86_OP_REG and
+                              ins.operands[0].reg in begins and ins.operands[1].reg in ends for ins in callee)
+        advances_records = any(ins.mnemonic == 'add' and len(ins.operands) == 2 and
+                               ins.operands[0].type == X86_OP_REG and ins.operands[0].reg in begins and
+                               ins.operands[1].type == X86_OP_IMM and ins.operands[1].imm == 80 for ins in callee)
+        if compares_bounds and advances_records:
+            return {'begin': hex(begin), 'end': hex(end), 'record_bytes': 80, 'callee': hex(target)}
+    except (ValueError, StopIteration, pefile.PEFormatError):
+        pass
+    return None
+
+
 def translate(input_path, output_path, db_path):
     input_path = pathlib.Path(input_path).resolve()
     output_path = pathlib.Path(output_path).resolve()
@@ -103,8 +206,12 @@ def translate(input_path, output_path, db_path):
     intern = {}
     counts = {'metadata': 0, 'direct': 0, 'format': 0, 'scripts': 0, 'inline': 0}
     profile = database.get('profiles', {}).get(sha(source))
+    if profile and 'delta' in profile and not (profile.get('owned_copy_safe') and profile.get('iterator_bounds_safe')):
+        profile = None
     known = database['translations']
     protected = set(database['protected'])
+    skipped_owned = []
+    skipped_iterator_bounds = []
     relocations = set()
     relocation_section = next((s for s in pe.sections if s.Name.rstrip(b'\0') == b'.reloc'), None)
     if relocation_section:
@@ -164,6 +271,13 @@ def translate(input_path, output_path, db_path):
         pieces, _ = parse_template(source, offset(old_target))
         assert format_text(pieces) == english
         placeholders = [p.raw for p in pieces if p.kind == 'placeholder']
+        if english in FORMAT_DISPLAY_OVERRIDES:
+            assert korean == FORMAT_DISPLAY_OVERRIDES[english]
+            assert len(placeholders) == 2 and placeholders[0] == b'\xc0'
+            rebuilt = placeholders[0] + b'\0'
+            data[at + 3:at + 7] = struct.pack('<i', store(rebuilt) - (address + 7))
+            counts['format'] += 1
+            return
         assert re.findall(r'\{(\d+)\}', korean) == [str(i) for i in range(len(placeholders))]
         rebuilt = bytearray()
         for part in re.split(r'(\{\d+\})', korean):
@@ -186,7 +300,9 @@ def translate(input_path, output_path, db_path):
         output_path.write_bytes(data)
         report = {'input_sha256': sha(source), 'output_sha256': sha(data), 'profile_matched': True,
                   'matched_counts': profile['matched_counts'], 'game_build_replaced': False,
-                  'native_update_modified': False, 'unknown_text_translated': False}
+                  'native_update_modified': False, 'unknown_text_translated': False,
+                  'skipped_owned_strings': profile.get('skipped_owned_strings', []),
+                  'skipped_iterator_bounds': profile.get('skipped_iterator_bounds', [])}
         pathlib.Path(str(output_path) + '.translation.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
         return report
     if profile:
@@ -195,9 +311,16 @@ def translate(input_path, output_path, db_path):
             if kind == 'str':
                 replace_metadata(patch['offset'], patch['english'], patch['korean'])
             elif kind == 'code':
-                replace_direct(patch['address'], patch['length_address'], patch['english'], patch['korean'])
+                if len(patch['english'].encode('utf-8')) != len(patch['korean'].encode('utf-8')) and memory_copy_call(cs, pe, source, patch['address']):
+                    skipped_owned.append({'address': hex(patch['address']), 'english': patch['english']})
+                else:
+                    replace_direct(patch['address'], patch['length_address'], patch['english'], patch['korean'])
             elif kind == 'fmt':
-                replace_format(patch['address'], patch['english'], patch['korean'])
+                bound = iterator_bound_reference(cs, pe, source, patch['address'])
+                if bound:
+                    skipped_iterator_bounds.append({'address': hex(patch['address']), 'english': patch['english'], **bound})
+                else:
+                    replace_format(patch['address'], patch['english'], patch['korean'])
         for row in profile.get('inline', []):
             old = row['source'].encode('utf-8')
             translated = row['korean'].encode('utf-8')
@@ -244,6 +367,7 @@ def translate(input_path, output_path, db_path):
                 continue
             reg = insns[0].reg_name(insns[0].operands[0].reg)
             length_reg = {'rcx': ('edx', 'rdx'), 'rdx': ('r8d', 'r8'), 'r8': ('r9d', 'r9')}.get(reg)
+            owned_skipped = False
             if length_reg:
                 for ins in insns[1:7]:
                     if ins.mnemonic in ('call', 'jmp', 'ret'):
@@ -260,8 +384,17 @@ def translate(input_path, output_path, db_path):
                     if row and english not in protected:
                         signature = code_context(cs, code, match.start(), address)
                         if signature in row['direct_contexts']:
-                            replace_direct(address, ins.address, english, row['korean'])
+                            if len(english.encode('utf-8')) != len(row['korean'].encode('utf-8')) and (
+                                signature in row.get('owned_copy_contexts', []) or memory_copy_call(cs, pe, source, address)
+                            ):
+                                skipped_owned.append({'address': hex(address), 'english': english})
+                                owned_skipped = True
+                                break
+                            else:
+                                replace_direct(address, ins.address, english, row['korean'])
                     break
+            if owned_skipped:
+                continue
             try:
                 pieces, _ = parse_template(source, offset(target), limit=8192)
                 english = format_text(pieces)
@@ -272,7 +405,11 @@ def translate(input_path, output_path, db_path):
                 continue
             signature = signature or code_context(cs, code, match.start(), address)
             if signature in row['format_contexts']:
-                replace_format(address, english, row['korean'])
+                bound = iterator_bound_reference(cs, pe, source, address)
+                if signature in row.get('iterator_bound_contexts', []) or bound:
+                    skipped_iterator_bounds.append({'address': hex(address), 'english': english, **(bound or {})})
+                else:
+                    replace_format(address, english, row['korean'])
 
     for script in database['scripts']:
         original = script['original'].encode('utf-8')
@@ -313,7 +450,8 @@ def translate(input_path, output_path, db_path):
         shutil.copyfile(input_path, output_path)
     report = {'input_sha256': sha(source), 'output_sha256': sha(output_path.read_bytes()),
               'profile_matched': bool(profile), 'matched_counts': counts, 'game_build_replaced': False,
-              'native_update_modified': False, 'unknown_text_translated': False}
+              'native_update_modified': False, 'unknown_text_translated': False,
+              'skipped_owned_strings': skipped_owned, 'skipped_iterator_bounds': skipped_iterator_bounds}
     pathlib.Path(str(output_path) + '.translation.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
     return report
 

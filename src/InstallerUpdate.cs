@@ -29,7 +29,7 @@ internal static class InstallerUpdate
             delegate { return Launcher.DownloadBytes(new Uri(Launcher.FeedUrl), Launcher.ManifestLimit); },
             publicKey, Launcher.DownloadInstaller, RunChild,
             delegate(ReleaseInfo release) { return InstalledMatches(folder, release); },
-            delegate(string message) { MessageBox.Show(message, "아제로스 서바이버 한글 패치", MessageBoxButtons.OK, MessageBoxIcon.Information); });
+            delegate(string message) { PatchProgress.Report("최신 한글 패치를 내려받고 있습니다."); });
     }
 
     internal static bool TryInstallLatest(string folder, Version bundledVersion, bool quiet,
@@ -58,6 +58,7 @@ internal static class InstallerUpdate
         try
         {
             if (!quiet && notice != null) notice("새 한글 패치가 있습니다. 최신 버전으로 설치합니다.");
+            PatchProgress.Report("최신 한글 패치를 내려받고 있습니다.");
             download(release, child);
             // Hold the verified image while launching and waiting; keep a timed-out child's file.
             using (FileStream image = new FileStream(child, FileMode.Open, FileAccess.Read, FileShare.Read))
@@ -66,6 +67,7 @@ internal static class InstallerUpdate
                 string digest = BitConverter.ToString(sha.ComputeHash(image)).Replace("-", "").ToLowerInvariant();
                 if (image.Length != release.InstallerSize || digest != release.InstallerHash)
                     throw new InvalidDataException("Downloaded installer does not match its signed manifest.");
+                PatchProgress.Report("최신 한글 패치를 설치하고 있습니다.");
                 int result = runChild(child, "/quiet /skip-update");
                 if (result == ChildStillRunning)
                 {
@@ -74,6 +76,7 @@ internal static class InstallerUpdate
                 }
                 if (result != 0)
                     throw new InvalidOperationException("Update installer failed.");
+                PatchProgress.Report("설치를 마무리하고 있습니다.");
                 if (!postcheck(release)) throw new InvalidDataException("Installed update verification failed.");
             }
             return true;
