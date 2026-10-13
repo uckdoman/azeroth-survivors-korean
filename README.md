@@ -6,7 +6,16 @@
 
 1. 게임을 종료하세요.
 2. 내려받은 패치 파일을 `AzerothSurvivors.exe`가 있는 폴더에 넣고 실행하세요.
-3. `AzerothSurvivors_KoreanLauncher.exe`로 게임을 실행하세요.
+
+   ![게임 폴더에서 한글 패치 실행](docs/images/install-file.png)
+
+3. 게임을 번역하는데 몇 분 정도 소요가 될 수 있습니다.
+
+   ![게임 번역 진행 화면](docs/images/install-progress.png)
+
+4. 설치가 완료되면 `AzerothSurvivors_KoreanLauncher.exe`로 게임을 실행하세요.
+
+   ![한글 패치 설치 완료 화면](docs/images/install-complete.png)
 
 ## 롤백
 
