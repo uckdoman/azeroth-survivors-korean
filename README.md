@@ -15,7 +15,7 @@
 
 4. 설치가 완료되면 `AzerothSurvivors_KoreanLauncher.exe`로 게임을 실행하세요.
 
-   한글 실행기는 새 한글 패치를 자동으로 확인하고 업데이트합니다.
+   기존 `AzerothSurvivors.exe`로도 실행할 수 있지만, 한글 실행기를 사용하면 새 한글 패치를 자동으로 확인하고 업데이트합니다.
 
    ![한글 패치 설치 완료 화면](docs/images/install-complete.png)
 
