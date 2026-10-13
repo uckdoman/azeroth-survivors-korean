@@ -12,7 +12,7 @@ using System.Web.Script.Serialization;
 using System.Windows.Forms;
 
 #if !INSTALLER_BUILD
-[assembly: AssemblyVersion("0.71.4.1")]
+[assembly: AssemblyVersion("0.71.4.2")]
 #endif
 
 internal sealed class ReleaseInfo
@@ -20,6 +20,8 @@ internal sealed class ReleaseInfo
     internal Version Version;
     internal string InstallerUrl, InstallerHash, SourceHash, PatchedHash, AssetsHash, OverlayHash, Patch2Hash;
     internal long InstallerSize;
+    internal bool GameIndependent;
+    internal string TranslationHash, RuntimeHash, AssetTranslationHash;
 }
 
 internal static class Launcher
@@ -68,7 +70,7 @@ internal static class Launcher
         if (!checkOnly && IsGameRunning(Path.Combine(folder, "AzerothSurvivors.exe"))) { Notice("게임이 이미 실행 중입니다. 게임 종료 후 다시 실행해 주세요."); return 23; }
         List<ReleaseInfo> trusted = new List<ReleaseInfo>();
         if (baseline != null) trusted.Add(baseline);
-        string cache = Path.Combine(folder, "한글패치_원본백업", "update.cached.json");
+        string cache = Path.Combine(folder, ".azeroth-ko", "update.cached.json");
         try { if (File.Exists(cache) && new FileInfo(cache).Length <= ManifestLimit) TryTrusted(File.ReadAllText(cache, Encoding.UTF8), publicKey, trusted); } catch { }
         Version installed;
         bool restored;
@@ -76,7 +78,7 @@ internal static class Launcher
         catch { if (checkOnly) return 21; return StartExisting(folder, trusted, 21); }
         if (restored)
         {
-            List<ReleaseInfo> originals = trusted.FindAll(delegate(ReleaseInfo item) { return HashFileSafe(Path.Combine(folder, "AzerothSurvivors.exe")) == item.SourceHash; });
+            List<ReleaseInfo> originals = trusted.FindAll(delegate(ReleaseInfo item) { return item.GameIndependent || HashFileSafe(Path.Combine(folder, "AzerothSurvivors.exe")) == item.SourceHash; });
             if (checkOnly) return GameValidAny(folder, originals) ? 0 : 22;
             return StartExisting(folder, originals, 0);
         }
@@ -96,9 +98,10 @@ internal static class Launcher
         int result = 0;
         try
         {
-            if (IsNewer(release.Version, installed))
+            bool repairTranslation = release.GameIndependent && !IsNewer(installed, release.Version) && !GameValid(folder, release);
+            if (IsNewer(release.Version, installed) || repairTranslation)
             {
-                if (HashFileSafe(Path.Combine(folder, "Data", "patch.MPQ")) != release.AssetsHash)
+                if (!release.GameIndependent && HashFileSafe(Path.Combine(folder, "Data", "patch.MPQ")) != release.AssetsHash)
                 {
                     if (checkOnly) return 26;
                     return StartExisting(folder, trusted, 26);
@@ -168,6 +171,7 @@ internal static class Launcher
         release.AssetsHash = Digest(data, "assets_sha256");
         release.OverlayHash = Digest(data, "overlay_sha256");
         release.Patch2Hash = data.ContainsKey("patch2_sha256") ? Digest(data, "patch2_sha256") : null;
+        ReadTranslationMode(data, release);
         return release;
     }
 
@@ -269,6 +273,7 @@ internal static class Launcher
     {
         try
         {
+            if (release.GameIndependent) return InstalledTranslationValid(folder, release);
             string game = HashFile(Path.Combine(folder, "AzerothSurvivors.exe"));
             if (HashFile(Path.Combine(folder, "Data", "patch.MPQ")) != release.AssetsHash) return false;
             if (!String.IsNullOrEmpty(release.Patch2Hash) && HashFile(Path.Combine(folder, "Data", "patch-2.MPQ")) != release.Patch2Hash) return false;
@@ -277,6 +282,43 @@ internal static class Launcher
             return game == release.SourceHash && !File.Exists(overlay);
         }
         catch { return false; }
+    }
+
+    private static bool InstalledTranslationValid(string folder, ReleaseInfo release)
+    {
+        string backup = Path.Combine(folder, ".azeroth-ko");
+        string statePath = Path.Combine(backup, "installed.json");
+        if (!File.Exists(statePath) || new FileInfo(statePath).Length > ManifestLimit) return false;
+        Dictionary<string, object> state = Json.Deserialize<Dictionary<string, object>>(File.ReadAllText(statePath, Encoding.UTF8));
+        long schema = Number(state, "schema");
+        if ((schema != 1 && schema != 2) || ParseVersion(Text(state, "version")) != release.Version) return false;
+        object independent;
+        if (!state.TryGetValue("game_independent", out independent) || !(independent is bool) || !(bool)independent) return false;
+        object restored;
+        if (!state.TryGetValue("restored", out restored) || !(restored is bool)) return false;
+        string game = Path.Combine(folder, "AzerothSurvivors.exe");
+        string overlay = Path.Combine(folder, "Data", "patch-Z.MPQ");
+        if ((bool)restored) return File.Exists(game) && !File.Exists(overlay);
+        string runtime = Path.Combine(backup, "translation-runtime");
+        return Digest(state, "translations_sha256") == release.TranslationHash
+            && HashFile(Path.Combine(runtime, "translations.json")) == release.TranslationHash
+            && HashFile(Path.Combine(runtime, "translator.exe")) == release.RuntimeHash
+            && HashFile(Path.Combine(runtime, "asset_translations.json")) == release.AssetTranslationHash
+            && HashFile(Path.Combine(runtime, "overlay-template.mpq")) == release.OverlayHash
+            && HashFile(game) == Digest(state, "patched_exe_sha256")
+            && HashFile(overlay) == Digest(state, "overlay_sha256");
+    }
+
+    private static void ReadTranslationMode(Dictionary<string, object> data, ReleaseInfo release)
+    {
+        object independent;
+        if (!data.TryGetValue("game_independent", out independent)) return;
+        if (!(independent is bool)) throw new InvalidDataException("Translation mode");
+        release.GameIndependent = (bool)independent;
+        if (!release.GameIndependent) return;
+        release.TranslationHash = Digest(data, "translations_sha256");
+        release.RuntimeHash = Digest(data, "runtime_sha256");
+        release.AssetTranslationHash = Digest(data, "assets_translation_sha256");
     }
 
     private static bool GameValidAny(string folder, List<ReleaseInfo> releases)
@@ -298,8 +340,6 @@ internal static class Launcher
             try
             {
                 ProcessStartInfo start = new ProcessStartInfo(game) { WorkingDirectory = folder, UseShellExecute = false };
-                start.EnvironmentVariables["WOW_ROGUE_UPDATE_URL"] = "https://patch.invalid/exe/latest.json";
-                start.EnvironmentVariables["WOW_ROGUE_DATA_URL"] = "https://patch.invalid/exe/data/patches.json";
                 Process.Start(start);
                 return result;
             }
@@ -310,11 +350,12 @@ internal static class Launcher
     internal static Version ReadInstalledVersion(string folder, out bool restored)
     {
         restored = false;
-        string path = Path.Combine(folder, "한글패치_원본백업", "installed.json");
+        string path = Path.Combine(folder, ".azeroth-ko", "installed.json");
         if (!File.Exists(path)) return new Version(0, 0, 0, 0);
         if (new FileInfo(path).Length > 4096) throw new InvalidDataException("Installed metadata size");
         Dictionary<string, object> data = Json.Deserialize<Dictionary<string, object>>(File.ReadAllText(path, Encoding.UTF8));
-        if (Number(data, "schema") != 1) throw new InvalidDataException("Installed schema");
+        long schema = Number(data, "schema");
+        if (schema != 1 && schema != 2) throw new InvalidDataException("Installed schema");
         object restoreValue;
         if (data.TryGetValue("restored", out restoreValue))
         {
@@ -328,7 +369,9 @@ internal static class Launcher
     {
         Dictionary<string, object> data = Json.Deserialize<Dictionary<string, object>>(value);
         if (Number(data, "schema") != 1) throw new InvalidDataException("Baseline schema");
-        return new ReleaseInfo { Version = ParseVersion(Text(data, "version")), SourceHash = Digest(data, "source_exe_sha256"), PatchedHash = Digest(data, "patched_exe_sha256"), AssetsHash = Digest(data, "assets_sha256"), OverlayHash = Digest(data, "overlay_sha256"), Patch2Hash = data.ContainsKey("patch2_sha256") ? Digest(data, "patch2_sha256") : null };
+        ReleaseInfo release = new ReleaseInfo { Version = ParseVersion(Text(data, "version")), SourceHash = Digest(data, "source_exe_sha256"), PatchedHash = Digest(data, "patched_exe_sha256"), AssetsHash = Digest(data, "assets_sha256"), OverlayHash = Digest(data, "overlay_sha256"), Patch2Hash = data.ContainsKey("patch2_sha256") ? Digest(data, "patch2_sha256") : null };
+        ReadTranslationMode(data, release);
+        return release;
     }
 
     private static bool IsGameRunning(string game)

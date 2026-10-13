@@ -93,7 +93,7 @@ internal static class InstallerUpdate
             bool restored;
             Version version = Launcher.ReadInstalledVersion(folder, out restored);
             return !restored && version == release.Version && Launcher.GameValid(folder, release)
-                && Launcher.HashFile(Path.Combine(folder, "AzerothSurvivors.exe")) == release.PatchedHash;
+                && (release.GameIndependent || Launcher.HashFile(Path.Combine(folder, "AzerothSurvivors.exe")) == release.PatchedHash);
         }
         catch { return false; }
     }

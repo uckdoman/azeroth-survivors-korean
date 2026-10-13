@@ -29,6 +29,13 @@ if ($patchMetadata.PSObject.Properties.Name -contains 'supported_patch2_sha256')
     if ($patchMetadata.supported_patch2_sha256 -cnotmatch '^[a-f0-9]{64}$') { throw 'Invalid patch-2 digest.' }
     $updatePayload['patch2_sha256'] = $patchMetadata.supported_patch2_sha256
 }
+if ($patchMetadata.PSObject.Properties.Name -contains 'game_independent' -and $patchMetadata.game_independent) {
+    $updatePayload['game_independent'] = $true
+    foreach ($name in 'translations_sha256','runtime_sha256','assets_translation_sha256') {
+        if ($patchMetadata.$name -cnotmatch '^[a-f0-9]{64}$') { throw "Invalid translation digest: $name" }
+        $updatePayload[$name] = $patchMetadata.$name
+    }
+}
 foreach ($digestName in 'installer_sha256','source_exe_sha256','patched_exe_sha256','assets_sha256','overlay_sha256') {
     if ($updatePayload[$digestName] -cnotmatch '^[a-f0-9]{64}$') { throw "Invalid digest: $digestName" }
 }
