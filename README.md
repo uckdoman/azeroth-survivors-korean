@@ -10,6 +10,8 @@
 
 ## 롤백
 
+한글 패치에 문제가 있을 때 원본으로 되돌리는 데 사용합니다.
+
 [롤백 다운로드](https://github.com/uckdoman/azeroth-survivors-korean/releases/latest/download/AzerothSurvivors_Rollback.exe)
 
 게임을 종료한 뒤, 내려받은 파일을 `AzerothSurvivors.exe`가 있는 폴더에 넣고 실행하세요.
