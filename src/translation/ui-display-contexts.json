@@ -2606,6 +2606,38 @@
     "Kobold Vermin": [
       "6237a0db4f6fadb52222dca485a4dd0f0dd43804bbe8421b9c2f42e337f80707",
       "6237a0db4f6fadb52222dca485a4dd0f0dd43804bbe8421b9c2f42e337f80707"
+    ],
+    "Time survived": [
+      "925ef94d706924cd394fdc857da993cebf7e54db23c8481fbcf571c1159b4535",
+      "925ef94d706924cd394fdc857da993cebf7e54db23c8481fbcf571c1159b4535"
+    ],
+    "Kills": [
+      "9854491c80b6e8ec58966dc8aabd9cacdaa56638efe25a79aa4db658b91594b5",
+      "9854491c80b6e8ec58966dc8aabd9cacdaa56638efe25a79aa4db658b91594b5"
+    ],
+    "Bosses slain": [
+      "495beafb26263f9871746898dfa13a9657173528c104627ad01067e38090b022",
+      "495beafb26263f9871746898dfa13a9657173528c104627ad01067e38090b022"
+    ],
+    "Victory": [
+      "66a16b5a20188920bf4af265d87584f9259c3830383a3c19e7c21ac91aaceb56",
+      "66a16b5a20188920bf4af265d87584f9259c3830383a3c19e7c21ac91aaceb56"
+    ],
+    "Moon, storm and growth. Roots, hurricanes and the steadiest self-healing.": [
+      "2fe47783fed8c4f993b1339658eacab32f726a89b60553c6cdcba2d6fd56a8c6",
+      "2fe47783fed8c4f993b1339658eacab32f726a89b60553c6cdcba2d6fd56a8c6"
+    ],
+    "Wisp-herder": [
+      "0b555eb456fdf2e32581c877c17a859d0e88831276da7d9617b470f7a87198e0",
+      "b323fa820b04fcd5d321127a7d315d00b0824efc2a3389670740874cc1b438f2",
+      "b323fa820b04fcd5d321127a7d315d00b0824efc2a3389670740874cc1b438f2",
+      "0b555eb456fdf2e32581c877c17a859d0e88831276da7d9617b470f7a87198e0"
+    ],
+    "Rune-hound": [
+      "26064aff2ee9866fe21ab7537c492a9c30552b2e0030e14fa1982aa267f3dcd5",
+      "8479ebee8c785835d64a5b9a496bd9b758e220c7d241601151529b0100e0b5e8",
+      "26064aff2ee9866fe21ab7537c492a9c30552b2e0030e14fa1982aa267f3dcd5",
+      "8479ebee8c785835d64a5b9a496bd9b758e220c7d241601151529b0100e0b5e8"
     ]
   },
   "direct": {
@@ -2627,6 +2659,62 @@
     "Requires {0} rank{1} in {2}": [
       "89699ff7a21a09a7e985ad4d14f4dbe956c9bf947a83131a523ee6edfdd68964",
       "89699ff7a21a09a7e985ad4d14f4dbe956c9bf947a83131a523ee6edfdd68964"
+    ],
+    "STILL TO FIND IN YOUR ZONES · {0}": [
+      "576c415fc2426b49499d757fb1bf9425b37c334f13e22d6a707f9b12aadba09f",
+      "576c415fc2426b49499d757fb1bf9425b37c334f13e22d6a707f9b12aadba09f"
+    ],
+    "+{0} Health": [
+      "b5d28cbfeb92ec8c55121c40c85c855cce83ab0d5a7b7bb34b08fa62fef97989",
+      "b5d28cbfeb92ec8c55121c40c85c855cce83ab0d5a7b7bb34b08fa62fef97989"
+    ],
+    "Equip: {0}": [
+      "d00d7f2cda5f57fb1aed49378696fb94580f7a8ac66923d1c360b5c5beb32eb9",
+      "d00d7f2cda5f57fb1aed49378696fb94580f7a8ac66923d1c360b5c5beb32eb9"
+    ],
+    "Rank {0}": [
+      "03cef8b14344eb94001b30b7d4e0de5d13e6c869c69dcc5b5957ea5dde9e0cfc",
+      "03cef8b14344eb94001b30b7d4e0de5d13e6c869c69dcc5b5957ea5dde9e0cfc"
+    ],
+    "Replaces {0}": [
+      "d3ab051fb075175b948c7a0ac93ac445d9fb0f26670d00bc755f0eb9b505de3e",
+      "d3ab051fb075175b948c7a0ac93ac445d9fb0f26670d00bc755f0eb9b505de3e"
+    ],
+    "RANK {0}": [
+      "322176309624db6da72b56dedfc2133983eed6ef0db10d9297b840ace97e453f",
+      "87838bea4f9ed3a5af5e51b07d4364fcb95f851b5bc8d20f0081995a7af29971",
+      "d3ab051fb075175b948c7a0ac93ac445d9fb0f26670d00bc755f0eb9b505de3e",
+      "87838bea4f9ed3a5af5e51b07d4364fcb95f851b5bc8d20f0081995a7af29971",
+      "d3ab051fb075175b948c7a0ac93ac445d9fb0f26670d00bc755f0eb9b505de3e",
+      "322176309624db6da72b56dedfc2133983eed6ef0db10d9297b840ace97e453f"
+    ],
+    "Takes a spell slot · {0}/{1}": [
+      "322176309624db6da72b56dedfc2133983eed6ef0db10d9297b840ace97e453f",
+      "322176309624db6da72b56dedfc2133983eed6ef0db10d9297b840ace97e453f"
+    ],
+    "Upgrades a {0} you wear": [
+      "464c8bd30b231b504c92de1c0457db75575eae421f1c8ce7380262e2b51e40a3",
+      "464c8bd30b231b504c92de1c0457db75575eae421f1c8ce7380262e2b51e40a3"
+    ],
+    "Rank {0}  »  {1}": [
+      "196a65631c45e38dacfe7ef95974ab72c5c1019a7d2a0efb478e1e6dc49b98e3",
+      "196a65631c45e38dacfe7ef95974ab72c5c1019a7d2a0efb478e1e6dc49b98e3"
+    ],
+    "Takes a {0} slot · {1}/{2}": [
+      "322176309624db6da72b56dedfc2133983eed6ef0db10d9297b840ace97e453f",
+      "322176309624db6da72b56dedfc2133983eed6ef0db10d9297b840ace97e453f"
+    ],
+    "The save could not be written: {0}": [
+      "91afec8f453cec09577fe6733e5ed9cf9598bbf49c5191ceff4f4f4a9c4da2bb",
+      "91afec8f453cec09577fe6733e5ed9cf9598bbf49c5191ceff4f4f4a9c4da2bb"
+    ],
+    "Exported {0} to the Saves folder.": [
+      "91afec8f453cec09577fe6733e5ed9cf9598bbf49c5191ceff4f4f4a9c4da2bb",
+      "91afec8f453cec09577fe6733e5ed9cf9598bbf49c5191ceff4f4f4a9c4da2bb"
+    ],
+    "Imported {0}: your progress is now the one it holds.": [
+      "f8c263fb20eb5af4173c907b5bf2f03a41949837a081daf2b5ebd7b778d9dab7",
+      "f8c263fb20eb5af4173c907b5bf2f03a41949837a081daf2b5ebd7b778d9dab7"
     ]
   },
   "source_sha256": "bc6649e91f270bc424f8120955aa1de5a7f31b3ea909588ae34545d26928c548",
@@ -4734,6 +4822,29 @@
       ],
       "Kobold Vermin": [
         107185656
+      ],
+      "Time survived": [
+        107184912
+      ],
+      "Kills": [
+        107184928
+      ],
+      "Bosses slain": [
+        107184944
+      ],
+      "Victory": [
+        107184960
+      ],
+      "Moon, storm and growth. Roots, hurricanes and the steadiest self-healing.": [
+        107216720
+      ],
+      "Wisp-herder": [
+        92790736,
+        107405808
+      ],
+      "Rune-hound": [
+        92790856,
+        107405928
       ]
     },
     "direct": {
@@ -4753,6 +4864,47 @@
       ],
       "Requires {0} rank{1} in {2}": [
         5370139432
+      ],
+      "STILL TO FIND IN YOUR ZONES · {0}": [
+        5369373840
+      ],
+      "+{0} Health": [
+        5369380184
+      ],
+      "Equip: {0}": [
+        5369380805
+      ],
+      "Rank {0}": [
+        5369732588
+      ],
+      "Replaces {0}": [
+        5369741635
+      ],
+      "RANK {0}": [
+        5369745166,
+        5369745407,
+        5369746492
+      ],
+      "Takes a spell slot · {0}/{1}": [
+        5369746240
+      ],
+      "Upgrades a {0} you wear": [
+        5369746608
+      ],
+      "Rank {0}  »  {1}": [
+        5369747405
+      ],
+      "Takes a {0} slot · {1}/{2}": [
+        5369750043
+      ],
+      "The save could not be written: {0}": [
+        5370375878
+      ],
+      "Exported {0} to the Saves folder.": [
+        5370376288
+      ],
+      "Imported {0}: your progress is now the one it holds.": [
+        5370377376
       ]
     }
   },
@@ -6667,6 +6819,29 @@
       },
       "Kobold Vermin": {
         "107185656": "코볼트 졸개"
+      },
+      "Time survived": {
+        "107184912": "생존 시간"
+      },
+      "Kills": {
+        "107184928": "처치 수"
+      },
+      "Bosses slain": {
+        "107184944": "처치한 우두머리"
+      },
+      "Victory": {
+        "107184960": "승리"
+      },
+      "Moon, storm and growth. Roots, hurricanes and the steadiest self-healing.": {
+        "107216720": "달과 폭풍, 생명의 힘을 다룹니다. 뿌리와 허리케인으로 적을 막고, 꾸준히 자신을 치유합니다."
+      },
+      "Wisp-herder": {
+        "92790736": "위습 몰이",
+        "107405808": "위습 몰이"
+      },
+      "Rune-hound": {
+        "92790856": "룬 사냥개",
+        "107405928": "룬 사냥개"
       }
     },
     "direct": {},
@@ -6676,6 +6851,47 @@
       },
       "Requires {0} rank{1} in {2}": {
         "5370139432": "{0}단계 필요: {2}"
+      },
+      "STILL TO FIND IN YOUR ZONES · {0}": {
+        "5369373840": "내 지역에서 아직 찾지 못한 아이템 · {0}"
+      },
+      "+{0} Health": {
+        "5369380184": "+{0} 생명력"
+      },
+      "Equip: {0}": {
+        "5369380805": "장착: {0}"
+      },
+      "Rank {0}": {
+        "5369732588": "{0}단계"
+      },
+      "Replaces {0}": {
+        "5369741635": "{0} 대체"
+      },
+      "RANK {0}": {
+        "5369745166": "{0}단계",
+        "5369745407": "{0}단계",
+        "5369746492": "{0}단계"
+      },
+      "Takes a spell slot · {0}/{1}": {
+        "5369746240": "주문 슬롯 사용 · {0}/{1}"
+      },
+      "Upgrades a {0} you wear": {
+        "5369746608": "착용 중인 {0} 강화"
+      },
+      "Rank {0}  »  {1}": {
+        "5369747405": "{0}단계  »  {1}단계"
+      },
+      "Takes a {0} slot · {1}/{2}": {
+        "5369750043": "{0} 슬롯 사용 · {1}/{2}"
+      },
+      "The save could not be written: {0}": {
+        "5370375878": "저장 파일을 쓰지 못했습니다: {0}"
+      },
+      "Exported {0} to the Saves folder.": {
+        "5370376288": "{0} 파일을 저장 폴더로 내보냈습니다."
+      },
+      "Imported {0}: your progress is now the one it holds.": {
+        "5370377376": "{0} 파일을 가져왔습니다. 진행 상황이 파일의 내용으로 바뀌었습니다."
       }
     }
   }
