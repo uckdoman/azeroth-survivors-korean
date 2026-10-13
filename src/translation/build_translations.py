@@ -12,7 +12,7 @@ ROOT = pathlib.Path(__file__).resolve().parent
 WORK = ROOT.parent
 PREVIOUS = WORK / 'azeroth-0.71.4'
 shutil.copyfile(WORK / 'localization-runtime/rust_fmt_template.py', ROOT / 'rust_fmt_template.py')
-from translator import sha, metadata_context, code_context, memory_copy_call, iterator_bound_reference, FORMAT_DISPLAY_OVERRIDES, parse_template, Cs, CS_ARCH_X86, CS_MODE_64, pefile
+from translator import sha, metadata_context, code_context, memory_copy_call, iterator_bound_reference, FORMAT_DISPLAY_OVERRIDES, display_template_override, parse_template, Cs, CS_ARCH_X86, CS_MODE_64, pefile
 
 read = lambda p: json.loads(p.read_text(encoding='utf-8'))
 source = (PREVIOUS / 'AzerothSurvivors.original.exe').read_bytes()
@@ -72,6 +72,19 @@ if extra_contexts.exists():
         entries[english]['metadata_contexts'] = sorted(set(entries[english]['metadata_contexts'] + signatures))
 for english, korean in FORMAT_DISPLAY_OVERRIDES.items():
     entries[english]['korean'] = korean
+ui_values = ROOT / 'ui-translations.json'
+ui_contexts = ROOT / 'ui-display-contexts.json'
+if ui_values.exists() and ui_contexts.exists():
+    display = read(ui_contexts)
+    for english, korean in read(ui_values).items():
+        if english not in FORMAT_DISPLAY_OVERRIDES or korean != FORMAT_DISPLAY_OVERRIDES[english]:
+            assert re.findall(r'\{[^{}]*\}', english) == re.findall(r'\{[^{}]*\}', korean), english
+        entry = entries.setdefault(english, {'korean': korean, 'metadata_contexts': [], 'direct_contexts': [],
+            'format_contexts': [], 'owned_copy_contexts': [], 'iterator_bound_contexts': []})
+        entry['display_sources'] = [display['source_sha256']]
+        entry['display_contexts'] = {kind: display.get(kind, {}).get(english, []) for kind in ('metadata', 'direct', 'format')}
+        entry['display_references'] = {kind: display['references'][kind].get(english, []) for kind in ('metadata', 'direct', 'format')}
+        entry['display_reference_values'] = {kind: display['reference_values'][kind].get(english, {}) for kind in ('metadata', 'direct', 'format')}
 scripts = [{'original': row['original'], 'translated': row['translated']} for row in read(PREVIOUS / 'assets/injected-lua-rewrites.json')]
 native = bytearray((PREVIOUS / 'testgame/AzerothSurvivors_KO.exe').read_bytes().replace(b'https://patch.invalid', b'https://wow.aethus.pl'))
 native_pe = pefile.PE(data=bytes(native), fast_load=True)
@@ -88,11 +101,12 @@ for patch in profile_patches:
             at = pe.get_offset_from_rva(patch['address'] - base)
             original_target = patch['address'] + 7 + struct.unpack_from('<i', source, at + 3)[0]
             pieces, _ = parse_template(source, pe.get_offset_from_rva(original_target - base))
-            placeholders = [piece.raw for piece in pieces if piece.kind == 'placeholder']
-            assert len(placeholders) == 2 and placeholders[0] == b'\xc0'
+            rebuilt = display_template_override(patch['english'], FORMAT_DISPLAY_OVERRIDES[patch['english']], pieces)
             target = patch['address'] + 7 + struct.unpack_from('<i', native, at + 3)[0]
             target_at = native_pe.get_offset_from_rva(target - base)
-            native[target_at:target_at + 2] = placeholders[0] + b'\0'
+            old_pieces, old_end = parse_template(native, target_at)
+            assert len(rebuilt) <= old_end - target_at
+            native[target_at:target_at + len(rebuilt)] = rebuilt
         continue
     if patch['kind'] != 'code' or len(patch['english'].encode('utf-8')) == len(patch['korean'].encode('utf-8')) or not memory_copy_call(cs, pe, source, patch['address']):
         continue
@@ -149,5 +163,9 @@ profile = {'delta': delta, 'append_base64': base64.b64encode(native[len(source):
 database = {'schema': 1, 'translations': dict(sorted(entries.items())), 'protected': sorted(protected),
             'max_text_bytes': max(len(english.encode('utf-8')) for english in entries), 'scripts': scripts,
             'profiles': {sha(source): profile}}
+ui_bindings = ROOT / 'ui-bindings.json'
+if ui_bindings.exists():
+    bindings = read(ui_bindings)
+    database['ui_bindings'] = {bindings['source_sha256']: bindings['bindings']}
 (ROOT / 'translations.json').write_text(json.dumps(database, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
 print(json.dumps({'database_entries': len(entries), 'exact_profile_references': len(profile_patches), 'whole_scripts': len(scripts), 'database_bytes': (ROOT / 'translations.json').stat().st_size, 'skipped_owned_count': len(skipped_owned), 'skipped_iterator_bounds': skipped_iterator_bounds, 'profile_output_sha256': expected_output}))

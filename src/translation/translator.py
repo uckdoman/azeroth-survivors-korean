@@ -16,7 +16,35 @@ from capstone import Cs, CS_ARCH_X86, CS_MODE_64
 from capstone.x86 import X86_OP_IMM, X86_OP_MEM, X86_OP_REG
 from rust_fmt_template import parse_template, encode_literal
 
-FORMAT_DISPLAY_OVERRIDES = {'{0} rank {1}': '{0}'}
+FORMAT_DISPLAY_OVERRIDES = {'{0} rank {1}': '{0}',
+    'Requires {0} rank{1} in {2}': '{0}단계 필요: {2}'}
+
+
+def display_template_override(english, korean, pieces):
+    if english not in FORMAT_DISPLAY_OVERRIDES:
+        return None
+    assert korean == FORMAT_DISPLAY_OVERRIDES[english]
+    placeholders = [p.raw for p in pieces if p.kind == 'placeholder']
+    if english == '{0} rank {1}':
+        assert placeholders == [b'\xc0', b'\xc0']
+        return b'\xc0\0'
+    assert placeholders == [b'\xc0', b'\xc0', b'\xc0']
+    # The unused English plural suffix stays in the caller's argument array.
+    return b'\xc0' + encode_literal('단계 필요: ') + b'\xc8\x02\0\0'
+
+
+def display_context_allowed(row, kind, signature, protected, source_hash, reference):
+    explicit = row.get('display_contexts', {}).get(kind, [])
+    addresses = row.get('display_references', {}).get(kind, [])
+    if source_hash in row.get('display_sources', []) and signature in explicit and reference in addresses:
+        return True
+    return not protected and signature in row.get(kind + '_contexts', [])
+
+
+def display_value(row, kind, reference, source_hash):
+    if source_hash in row.get('display_sources', []):
+        return row.get('display_reference_values', {}).get(kind, {}).get(str(reference), row['korean'])
+    return row['korean']
 
 
 def sha(data):
@@ -205,7 +233,8 @@ def translate(input_path, output_path, db_path):
     payload = bytearray()
     intern = {}
     counts = {'metadata': 0, 'direct': 0, 'format': 0, 'scripts': 0, 'inline': 0}
-    profile = database.get('profiles', {}).get(sha(source))
+    source_hash = sha(source)
+    profile = database.get('profiles', {}).get(source_hash)
     if profile and 'delta' in profile and not (profile.get('owned_copy_safe') and profile.get('iterator_bounds_safe')):
         profile = None
     known = database['translations']
@@ -271,10 +300,9 @@ def translate(input_path, output_path, db_path):
         pieces, _ = parse_template(source, offset(old_target))
         assert format_text(pieces) == english
         placeholders = [p.raw for p in pieces if p.kind == 'placeholder']
-        if english in FORMAT_DISPLAY_OVERRIDES:
-            assert korean == FORMAT_DISPLAY_OVERRIDES[english]
-            assert len(placeholders) == 2 and placeholders[0] == b'\xc0'
-            rebuilt = placeholders[0] + b'\0'
+        override = display_template_override(english, korean, pieces)
+        if override is not None:
+            rebuilt = override
             data[at + 3:at + 7] = struct.pack('<i', store(rebuilt) - (address + 7))
             counts['format'] += 1
             return
@@ -349,10 +377,10 @@ def translate(input_path, output_path, db_path):
             except (ValueError, UnicodeDecodeError, pefile.PEFormatError):
                 continue
             row = known.get(english)
-            if not row or english in protected:
+            if not row:
                 continue
-            if metadata_context(source, pe, ref) in row['metadata_contexts']:
-                replace_metadata(ref, english, row['korean'])
+            if display_context_allowed(row, 'metadata', metadata_context(source, pe, ref), english in protected, source_hash, ref):
+                replace_metadata(ref, english, display_value(row, 'metadata', ref, source_hash))
         code = source[text.PointerToRawData:text.PointerToRawData + text.SizeOfRawData]
         cb = base + text.VirtualAddress
         pattern = rb'(?=([\x40-\x4f]\x8d[\x05\x0d\x15\x1d\x25\x2d\x35\x3d]....))'
@@ -381,17 +409,18 @@ def translate(input_path, output_path, db_path):
                     except (ValueError, UnicodeDecodeError, pefile.PEFormatError):
                         break
                     row = known.get(english)
-                    if row and english not in protected:
+                    if row:
                         signature = code_context(cs, code, match.start(), address)
-                        if signature in row['direct_contexts']:
-                            if len(english.encode('utf-8')) != len(row['korean'].encode('utf-8')) and (
+                        if display_context_allowed(row, 'direct', signature, english in protected, source_hash, address):
+                            korean = display_value(row, 'direct', address, source_hash)
+                            if len(english.encode('utf-8')) != len(korean.encode('utf-8')) and (
                                 signature in row.get('owned_copy_contexts', []) or memory_copy_call(cs, pe, source, address)
                             ):
                                 skipped_owned.append({'address': hex(address), 'english': english})
                                 owned_skipped = True
                                 break
                             else:
-                                replace_direct(address, ins.address, english, row['korean'])
+                                replace_direct(address, ins.address, english, korean)
                     break
             if owned_skipped:
                 continue
@@ -401,15 +430,19 @@ def translate(input_path, output_path, db_path):
             except (ValueError, UnicodeDecodeError, struct.error, pefile.PEFormatError):
                 continue
             row = known.get(english)
-            if not row or english in protected or not row['format_contexts']:
+            if not row:
                 continue
             signature = signature or code_context(cs, code, match.start(), address)
-            if signature in row['format_contexts']:
+            if display_context_allowed(row, 'format', signature, english in protected, source_hash, address):
                 bound = iterator_bound_reference(cs, pe, source, address)
                 if signature in row.get('iterator_bound_contexts', []) or bound:
                     skipped_iterator_bounds.append({'address': hex(address), 'english': english, **(bound or {})})
                 else:
-                    replace_format(address, english, row['korean'])
+                    replace_format(address, english, display_value(row, 'format', address, source_hash))
+
+    from ui_bindings import apply_bindings
+    applied_ui = apply_bindings(source, data, pe, store, database.get('ui_bindings', {}).get(source_hash, []))
+    counts['inline'] += len(applied_ui)
 
     for script in database['scripts']:
         original = script['original'].encode('utf-8')
@@ -451,7 +484,8 @@ def translate(input_path, output_path, db_path):
     report = {'input_sha256': sha(source), 'output_sha256': sha(output_path.read_bytes()),
               'profile_matched': bool(profile), 'matched_counts': counts, 'game_build_replaced': False,
               'native_update_modified': False, 'unknown_text_translated': False,
-              'skipped_owned_strings': skipped_owned, 'skipped_iterator_bounds': skipped_iterator_bounds}
+              'skipped_owned_strings': skipped_owned, 'skipped_iterator_bounds': skipped_iterator_bounds,
+              'applied_ui_bindings': applied_ui}
     pathlib.Path(str(output_path) + '.translation.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
     return report
 

@@ -1,0 +1,522 @@
+{
+  "source_sha256": "bc6649e91f270bc424f8120955aa1de5a7f31b3ea909588ae34545d26928c548",
+  "bindings": [
+    {
+      "kind": "borrowed",
+      "english": "Class",
+      "korean": "직업",
+      "pointer_address": 5371268344,
+      "pointer_before_hex": "488d05cdf86005",
+      "length": {
+        "address": 5371268358,
+        "before_hex": "48c7858800000005000000",
+        "immediate_offset": 7,
+        "immediate_size": 4
+      },
+      "guards": [
+        {
+          "address": 5371268344,
+          "before_hex": "488d05cdf860054889858000000048c7858800000005000000"
+        }
+      ]
+    },
+    {
+      "kind": "borrowed",
+      "english": "Equipment",
+      "korean": "장비",
+      "pointer_address": 5371263426,
+      "pointer_before_hex": "488d05fa0b6105",
+      "length": {
+        "address": 5371263440,
+        "before_hex": "48c7857007000009000000",
+        "immediate_offset": 7,
+        "immediate_size": 4
+      },
+      "guards": [
+        {
+          "address": 5371263426,
+          "before_hex": "488d05fa0b61054889856807000048c7857007000009000000"
+        }
+      ]
+    },
+    {
+      "kind": "borrowed",
+      "english": "HEALTH",
+      "korean": "생명력",
+      "pointer_address": 5371272818,
+      "pointer_before_hex": "488d05b7c96005",
+      "length": {
+        "address": 5371272832,
+        "before_hex": "48c7851805000006000000",
+        "immediate_offset": 7,
+        "immediate_size": 4
+      },
+      "guards": [
+        {
+          "address": 5371272818,
+          "before_hex": "488d05b7c960054889851005000048c7851805000006000000"
+        }
+      ]
+    },
+    {
+      "kind": "borrowed",
+      "english": "STARTS WITH",
+      "korean": "시작 기술",
+      "pointer_address": 5371273186,
+      "pointer_before_hex": "488d054dc86005",
+      "length": {
+        "address": 5371273200,
+        "before_hex": "48c785c00400000b000000",
+        "immediate_offset": 7,
+        "immediate_size": 4
+      },
+      "guards": [
+        {
+          "address": 5371273186,
+          "before_hex": "488d054dc86005488985b804000048c785c00400000b000000"
+        }
+      ]
+    },
+    {
+      "kind": "borrowed",
+      "english": "ZONES OPEN",
+      "korean": "개방 지역",
+      "pointer_address": 5371273253,
+      "pointer_before_hex": "488d051dc86005",
+      "length": {
+        "address": 5371273267,
+        "before_hex": "48c785e80400000a000000",
+        "immediate_offset": 7,
+        "immediate_size": 4
+      },
+      "guards": [
+        {
+          "address": 5371273253,
+          "before_hex": "488d051dc86005488985e004000048c785e80400000a000000"
+        }
+      ]
+    },
+    {
+      "kind": "borrowed",
+      "english": "Zone",
+      "korean": "지역",
+      "pointer_address": 5371303575,
+      "pointer_before_hex": "488d05d56f6005",
+      "length": {
+        "address": 5371303589,
+        "before_hex": "48c7856805000004000000",
+        "immediate_offset": 7,
+        "immediate_size": 4
+      },
+      "guards": [
+        {
+          "address": 5371303575,
+          "before_hex": "488d05d56f60054889856005000048c7856805000004000000"
+        }
+      ]
+    },
+    {
+      "kind": "borrowed",
+      "english": "Armory",
+      "korean": "무기고",
+      "pointer_address": 5371320290,
+      "pointer_before_hex": "4c8d0d350e6005",
+      "length": {
+        "address": 5371320302,
+        "before_hex": "48c784248000000006000000",
+        "immediate_offset": 8,
+        "immediate_size": 4
+      },
+      "guards": [
+        {
+          "address": 5371320290,
+          "before_hex": "4c8d0d350e60054c894c247848c784248000000006000000"
+        }
+      ]
+    },
+    {
+      "kind": "borrowed",
+      "english": "Talents",
+      "korean": "특성",
+      "pointer_address": 5371320557,
+      "pointer_before_hex": "4c8d0db8026005",
+      "length": {
+        "address": 5371320569,
+        "before_hex": "48c784248000000007000000",
+        "immediate_offset": 8,
+        "immediate_size": 4
+      },
+      "guards": [
+        {
+          "address": 5371320557,
+          "before_hex": "4c8d0db80260054c894c247848c784248000000007000000"
+        }
+      ]
+    },
+    {
+      "kind": "borrowed",
+      "english": "HORDE",
+      "korean": "호드",
+      "pointer_address": 5371257602,
+      "pointer_before_hex": "488d058bfe6005",
+      "length": {
+        "address": 5371257616,
+        "before_hex": "48c7858004000005000000",
+        "immediate_offset": 7,
+        "immediate_size": 4
+      },
+      "guards": [
+        {
+          "address": 5371257602,
+          "before_hex": "488d058bfe60054889857804000048c7858004000005000000"
+        }
+      ]
+    },
+    {
+      "kind": "same_byte_span",
+      "english": "Swarm surrounds you!",
+      "korean": "무리에 포위됨!",
+      "pointer_address": 5456862543,
+      "pointer_before_hex": "4c8d0d62b42501",
+      "guards": [
+        {
+          "address": 5456862534,
+          "before_hex": "48c744242014000000"
+        },
+        {
+          "address": 5456862543,
+          "before_hex": "4c8d0d62b42501"
+        }
+      ]
+    },
+    {
+      "english": "Run Options",
+      "guards": [
+        {
+          "address": 5371294433,
+          "before_hex": "b90b000000ba01000000e8d0aed8ff4885c00f842203000048b952756e204f707469488908c74007696f6e730fb61f80fb01751f8b4f018b57048995c3000000898dc00000004c8b6f080fb64f1041b001eb124c8b6f08f049ff45000f8ee70200004531c0488d55a80f1005076660050f1185a1000000c785b10000000000803f48c745080b0000004889451048c745180b000000"
+        }
+      ],
+      "length": {
+        "address": 5371294574,
+        "before_hex": "48c745180b000000",
+        "immediate_offset": 4,
+        "immediate_size": 4
+      },
+      "kind": "owned_title_sse",
+      "korean": "모험 설정",
+      "allocation": {
+        "address": 5371294433,
+        "before_hex": "b90b000000",
+        "immediate_offset": 1,
+        "immediate_size": 4
+      },
+      "capacity": {
+        "address": 5371294562,
+        "before_hex": "48c745080b000000",
+        "immediate_offset": 4,
+        "immediate_size": 4
+      },
+      "copy_address": 5371294457,
+      "copy_before_hex": "48b952756e204f707469488908c74007696f6e73",
+      "error_size": {
+        "address": 5371295264,
+        "before_hex": "ba0b000000",
+        "immediate_offset": 1,
+        "immediate_size": 4
+      }
+    },
+    {
+      "english": "Run Options",
+      "guards": [
+        {
+          "address": 5371423341,
+          "before_hex": "b90b000000ba01000000e844b7d6ff4885c00f842418000048b952756e204f707469488908c74007696f6e7341807c241801752c440f28c6418b4c2419418b54241c89942493020000898c2490020000498b4c2420410fb654242841b001eb16498b4c2420f048ff010f8edc170000440f28c64531c048c74424400b000000488944244848c74424500b000000"
+        }
+      ],
+      "length": {
+        "address": 5371423473,
+        "before_hex": "48c74424500b000000",
+        "immediate_offset": 5,
+        "immediate_size": 4
+      },
+      "kind": "owned_title_sse",
+      "korean": "모험 설정",
+      "allocation": {
+        "address": 5371423341,
+        "before_hex": "b90b000000",
+        "immediate_offset": 1,
+        "immediate_size": 4
+      },
+      "capacity": {
+        "address": 5371423459,
+        "before_hex": "48c74424400b000000",
+        "immediate_offset": 5,
+        "immediate_size": 4
+      },
+      "copy_address": 5371423365,
+      "copy_before_hex": "48b952756e204f707469488908c74007696f6e73",
+      "error_size": {
+        "address": 5371429550,
+        "before_hex": "ba0b000000",
+        "immediate_offset": 1,
+        "immediate_size": 4
+      }
+    },
+    {
+      "english": "Talent experience and boss loot chance",
+      "guards": [
+        {
+          "address": 5371420433,
+          "before_hex": "b926000000ba01000000e8a0c2d6ff4885c00f84460300000f1005c0ba5e050f1140100f1005a5ba5e050f110048b974206368616e63654889481e41803c24017526418b4c2401418b5424048995c3000000898dc0000000498b4c2408410fb654241041b001eb12498b4c2408f048ff010f8ef60200004531c0488d7da80f10057a7e5e050f118589000000c785990000000000803f48c74508260000004889451048c7451826000000"
+        }
+      ],
+      "length": {
+        "address": 5371420595,
+        "before_hex": "48c7451826000000",
+        "immediate_offset": 4,
+        "immediate_size": 4
+      },
+      "kind": "owned_repoint",
+      "korean": "특성 경험치·보스 드롭률",
+      "capacity_bytes": 38,
+      "loads": [
+        {
+          "address": 5371420457,
+          "before_hex": "0f1005c0ba5e05",
+          "displacement_offset": 3,
+          "size": 7,
+          "payload_offset": 16,
+          "bytes_read": 16
+        },
+        {
+          "address": 5371420468,
+          "before_hex": "0f1005a5ba5e05",
+          "displacement_offset": 3,
+          "size": 7,
+          "payload_offset": 0,
+          "bytes_read": 16
+        }
+      ],
+      "tail": {
+        "address": 5371420478,
+        "before_hex": "48b974206368616e6365",
+        "immediate_offset": 2,
+        "immediate_size": 8,
+        "payload_offset": 30
+      }
+    },
+    {
+      "english": "Normal difficulty",
+      "guards": [
+        {
+          "address": 5371294770,
+          "before_hex": "b911000000ba01000000e87fadd8ff4885c00f84e20100000f10058b9160050f1100c640107948c785a000000011000000488985a800000048c785b000000011000000"
+        }
+      ],
+      "length": {
+        "address": 5371294826,
+        "before_hex": "48c785b000000011000000",
+        "immediate_offset": 7,
+        "immediate_size": 4
+      },
+      "kind": "owned_repoint",
+      "korean": "보통 난이도",
+      "capacity_bytes": 17,
+      "loads": [
+        {
+          "address": 5371294794,
+          "before_hex": "0f10058b916005",
+          "displacement_offset": 3,
+          "size": 7,
+          "payload_offset": 0,
+          "bytes_read": 16
+        }
+      ],
+      "tail": {
+        "address": 5371294804,
+        "before_hex": "c6401079",
+        "immediate_offset": 3,
+        "immediate_size": 1,
+        "payload_offset": 16
+      }
+    },
+    {
+      "english": "Random",
+      "korean": "랜덤",
+      "guards": [
+        {
+          "address": 5371331446,
+          "before_hex": "b906000000"
+        },
+        {
+          "address": 5371331476,
+          "before_hex": "c70052616e64"
+        },
+        {
+          "address": 5371331470,
+          "before_hex": "66c740046f6d"
+        }
+      ],
+      "kind": "inline_equal",
+      "bytes": 6,
+      "parts": [
+        {
+          "address": 5371331476,
+          "before_hex": "c70052616e64",
+          "immediate_offset": 2,
+          "immediate_size": 4,
+          "payload_offset": 0
+        },
+        {
+          "address": 5371331470,
+          "before_hex": "66c740046f6d",
+          "immediate_offset": 4,
+          "immediate_size": 2,
+          "payload_offset": 4
+        }
+      ]
+    },
+    {
+      "english": "COLLECTION",
+      "korean": "수집품 ",
+      "guards": [
+        {
+          "address": 5371316110,
+          "before_hex": "b90a000000"
+        },
+        {
+          "address": 5371316134,
+          "before_hex": "48b9434f4c4c45435449"
+        },
+        {
+          "address": 5371316147,
+          "before_hex": "66c740084f4e"
+        }
+      ],
+      "kind": "inline_equal",
+      "bytes": 10,
+      "parts": [
+        {
+          "address": 5371316134,
+          "before_hex": "48b9434f4c4c45435449",
+          "immediate_offset": 2,
+          "immediate_size": 8,
+          "payload_offset": 0
+        },
+        {
+          "address": 5371316147,
+          "before_hex": "66c740084f4e",
+          "immediate_offset": 4,
+          "immediate_size": 2,
+          "payload_offset": 8
+        }
+      ]
+    },
+    {
+      "english": "SPELL POOL",
+      "korean": "주문군 ",
+      "guards": [
+        {
+          "address": 5371274945,
+          "before_hex": "b90a000000"
+        },
+        {
+          "address": 5371274969,
+          "before_hex": "48b95350454c4c20504f"
+        },
+        {
+          "address": 5371274982,
+          "before_hex": "66c740084f4c"
+        }
+      ],
+      "kind": "inline_equal",
+      "bytes": 10,
+      "parts": [
+        {
+          "address": 5371274969,
+          "before_hex": "48b95350454c4c20504f",
+          "immediate_offset": 2,
+          "immediate_size": 8,
+          "payload_offset": 0
+        },
+        {
+          "address": 5371274982,
+          "before_hex": "66c740084f4c",
+          "immediate_offset": 4,
+          "immediate_size": 2,
+          "payload_offset": 8
+        }
+      ]
+    },
+    {
+      "english": "Race, look, gear and drop tables",
+      "korean": "종족/외형/장비/전리품  ",
+      "guards": [
+        {
+          "address": 5371320220,
+          "before_hex": "b920000000"
+        },
+        {
+          "address": 5371320244,
+          "before_hex": "0f10050a2f6005"
+        },
+        {
+          "address": 5371320255,
+          "before_hex": "0f1005ef2e6005"
+        }
+      ],
+      "kind": "owned_readonly",
+      "capacity_bytes": 32,
+      "loads": [
+        {
+          "address": 5371320244,
+          "before_hex": "0f10050a2f6005",
+          "displacement_offset": 3,
+          "size": 7,
+          "payload_offset": 16,
+          "bytes_read": 16
+        },
+        {
+          "address": 5371320255,
+          "before_hex": "0f1005ef2e6005",
+          "displacement_offset": 3,
+          "size": 7,
+          "payload_offset": 0,
+          "bytes_read": 16
+        }
+      ]
+    },
+    {
+      "kind": "selected_gender",
+      "english": "Male/Female",
+      "korean": "남성/여성",
+      "male": "남성",
+      "female": "여성",
+      "male_pointer": {
+        "address": 5371250270,
+        "before_hex": "488d15401b6105"
+      },
+      "female_pointer": {
+        "address": 5371250263,
+        "before_hex": "488d0d4b1b6105"
+      },
+      "length_address": 5371250281,
+      "length_before_hex": "488d044504000000",
+      "guards": [
+        {
+          "address": 5371250270,
+          "before_hex": "488d15401b6105"
+        },
+        {
+          "address": 5371250263,
+          "before_hex": "488d0d4b1b6105"
+        },
+        {
+          "address": 5371250281,
+          "before_hex": "488d044504000000"
+        }
+      ]
+    }
+  ]
+}
