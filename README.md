@@ -1,8 +1,12 @@
 # Azeroth Survivors 한국어 패치
 
-[다운로드](https://github.com/uckdoman/azeroth-survivors-korean/releases/latest/download/AzerothSurvivors_KoreanPatch.exe)
+> **배포 중단 안내**
+>
+> 공식 한글화가 제공되어 이 한글 패치의 배포를 중단합니다. 공식 한글판을 이용해 주세요.
 
-## 설치
+[기존 배포본 다운로드](https://github.com/uckdoman/azeroth-survivors-korean/releases/latest/download/AzerothSurvivors_KoreanPatch.exe)
+
+## 기존 배포본 설치
 
 1. 게임을 종료하세요.
 2. 내려받은 패치 파일을 `AzerothSurvivors.exe`가 있는 폴더에 넣고 실행하세요.
